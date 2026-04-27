@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Box,
   Typography,
@@ -10,6 +10,8 @@ import {
 import { MaterialIcon } from '../components/MaterialIcon'
 
 export const SalesMetricsPage: React.FC = () => {
+  const [period, setPeriod] = useState('7 Days')
+
   const topSelling = [
     { name: 'Atorvastatin 20mg', details: '15 units · 1 transactions', revenue: 'GH₵84.00', value: 100 },
     { name: 'Lisinopril 10mg', details: '20 units · 1 transactions', revenue: 'GH₵82.00', value: 95 },
@@ -37,9 +39,22 @@ export const SalesMetricsPage: React.FC = () => {
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1, backgroundColor: 'background.paper', p: 0.5, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-          <Button size="small" variant="text" sx={{ color: 'text.secondary', px: 2, '&:hover': { backgroundColor: 'action.hover' } }}>Today</Button>
-          <Button size="small" variant="contained" sx={{ backgroundColor: '#0EA5E9', color: 'white', px: 2, '&:hover': { backgroundColor: '#0284C7' } }}>7 Days</Button>
-          <Button size="small" variant="text" sx={{ color: 'text.secondary', px: 2, '&:hover': { backgroundColor: 'action.hover' } }}>30 Days</Button>
+          {['Today', '7 Days', '30 Days'].map((p) => (
+            <Button 
+              key={p}
+              onClick={() => setPeriod(p)}
+              size="small" 
+              variant={period === p ? 'contained' : 'text'} 
+              sx={{ 
+                backgroundColor: period === p ? '#0EA5E9' : 'transparent', 
+                color: period === p ? 'white' : 'text.secondary', 
+                px: 2, 
+                '&:hover': { backgroundColor: period === p ? '#0284C7' : 'action.hover' } 
+              }}
+            >
+              {p}
+            </Button>
+          ))}
         </Box>
       </Box>
 

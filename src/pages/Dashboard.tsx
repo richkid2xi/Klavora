@@ -16,6 +16,7 @@ interface DashboardProps {
 
 export const Dashboard: React.FC<DashboardProps> = ({ user: _user, onLogout: _onLogout }) => {
   const [activeAlertTab, setActiveAlertTab] = useState(0)
+  const [showBanner, setShowBanner] = useState(true)
 
   const stats = [
     { label: 'TOTAL DRUGS', value: '15', sub: 'Drug types tracked', icon: 'medication', color: '#0EA5E9' },
@@ -54,27 +55,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ user: _user, onLogout: _on
       </Box>
 
       {/* Payment Banner */}
-      <Paper
-        elevation={0}
-        sx={{
-          p: 2,
-          mb: 4,
-          borderRadius: 2,
-          backgroundColor: 'rgba(245, 158, 11, 0.05)',
-          border: '1px solid rgba(245, 158, 11, 0.2)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <MaterialIcon icon="error_outline" style={{ color: '#F59E0B' }} />
-          <Typography variant="body2" sx={{ fontWeight: 600, color: '#F59E0B' }}>
-            Your next payment is in 14 days. Renew via MoMo.
-          </Typography>
-        </Box>
-        <Button size="small" sx={{ color: '#F59E0B', fontWeight: 700, textTransform: 'none' }}>Dismiss</Button>
-      </Paper>
+      {showBanner && (
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2,
+            mb: 4,
+            borderRadius: 2,
+            backgroundColor: 'rgba(245, 158, 11, 0.05)',
+            border: '1px solid rgba(245, 158, 11, 0.2)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <MaterialIcon icon="error_outline" style={{ color: '#F59E0B' }} />
+            <Typography variant="body2" sx={{ fontWeight: 600, color: '#F59E0B' }}>
+              Your next payment is in 14 days. Renew via MoMo.
+            </Typography>
+          </Box>
+          <Button onClick={() => setShowBanner(false)} size="small" sx={{ color: '#F59E0B', fontWeight: 700, textTransform: 'none' }}>Dismiss</Button>
+        </Paper>
+      )}
 
       <Grid container spacing={3}>
         {/* Left Column: Stats and Alerts */}
@@ -177,7 +180,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ user: _user, onLogout: _on
                     >
                       {item.status}
                     </Box>
-                    <ButtonBase sx={{ color: '#0EA5E9', fontWeight: 700, fontSize: '0.8rem', '&:hover': { textDecoration: 'underline' } }}>
+                    <ButtonBase 
+                      onClick={() => alert(`Restocking ${item.name}...`)}
+                      sx={{ color: '#0EA5E9', fontWeight: 700, fontSize: '0.8rem', '&:hover': { textDecoration: 'underline' } }}
+                    >
                       Restock
                     </ButtonBase>
                   </Box>

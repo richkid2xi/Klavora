@@ -105,7 +105,7 @@ export const StaffPage: React.FC = () => {
                     <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>Last active {staff.active}</Typography>
                   </Box>
                 </Box>
-                <IconButton size="small"><MaterialIcon icon="delete_outline" opsz={20} style={{ color: 'text.secondary' }} /></IconButton>
+                <IconButton onClick={() => alert(`Delete ${staff.name}?`)} size="small"><MaterialIcon icon="delete_outline" opsz={20} style={{ color: 'text.secondary' }} /></IconButton>
               </Box>
 
               <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
@@ -136,7 +136,7 @@ export const StaffPage: React.FC = () => {
                 </Box>
               </Box>
 
-              <Button fullWidth variant="text" startIcon={<MaterialIcon icon="bar_chart" />} sx={{ color: 'text.secondary', fontWeight: 600, textTransform: 'none', '&:hover': { backgroundColor: 'action.hover' } }}>
+              <Button onClick={() => alert(`Viewing activity for ${staff.name}`)} fullWidth variant="text" startIcon={<MaterialIcon icon="bar_chart" />} sx={{ color: 'text.secondary', fontWeight: 600, textTransform: 'none', '&:hover': { backgroundColor: 'action.hover' } }}>
                 View Activity Log
               </Button>
             </Paper>

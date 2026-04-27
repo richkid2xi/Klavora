@@ -3,11 +3,7 @@ import { createTheme, ThemeOptions } from '@mui/material/styles'
 const commonSettings: ThemeOptions = {
   typography: {
     fontFamily: [
-      '"Public Sans"',
       '"Inter"',
-      '"Roboto"',
-      '"Helvetica"',
-      '"Arial"',
       'sans-serif',
     ].join(','),
     h1: { fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-0.02em' },
@@ -116,14 +112,14 @@ export const darkTheme = createTheme({
       main: '#F59E0B',
     },
     background: {
-      default: '#0F172A',
-      paper: '#1E293B',
+      default: '#0B0D12',
+      paper: '#11141B',
     },
     text: {
-      primary: '#F9FAFB',
-      secondary: '#9CA3AF',
+      primary: '#F1F5F9',
+      secondary: '#8B949E',
     },
-    divider: '#334155',
+    divider: '#1E232D',
   },
   components: {
     ...commonSettings.components,
@@ -132,12 +128,12 @@ export const darkTheme = createTheme({
         ...commonSettings.components?.MuiTextField?.styleOverrides,
         root: {
           '& .MuiOutlinedInput-root': {
-            backgroundColor: '#0F172A',
+            backgroundColor: '#0B0D12',
             '& fieldset': {
-              borderColor: '#334155',
+              borderColor: '#1E232D',
             },
             '&:hover fieldset': {
-              borderColor: '#475569',
+              borderColor: '#2D3543',
             },
           },
           '& .MuiInputBase-input': {
@@ -150,9 +146,9 @@ export const darkTheme = createTheme({
       styleOverrides: {
         ...commonSettings.components?.MuiPaper?.styleOverrides,
         root: {
-          backgroundColor: '#1E293B',
+          backgroundColor: '#11141B',
           backgroundImage: 'none',
-          border: '1px solid #334155',
+          border: '1px solid #1E232D',
         },
       },
     },

@@ -30,6 +30,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   const muiTheme = useMuiTheme()
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'))
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false)
+
+  const toggleCollapse = () => setIsCollapsed(!isCollapsed)
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -65,13 +68,16 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            flexShrink: 0,
           }}
         >
           <MaterialIcon icon="medication" fill weight={600} opsz={20} style={{ color: 'white' }} />
         </Box>
-        <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: 'text.primary' }}>
-          Klavora
-        </Typography>
+        {!isCollapsed && (
+          <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: 'text.primary', whiteSpace: 'nowrap' }}>
+            Klavora
+          </Typography>
+        )}
       </Box>
 
       <Box sx={{ flex: 1 }}>
@@ -90,7 +96,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
               mb: 0.5,
               color: activePage === item.id ? 'primary.main' : 'text.secondary',
               backgroundColor: activePage === item.id ? 'rgba(14, 165, 233, 0.1)' : 'transparent',
-              justifyContent: 'flex-start',
+              justifyContent: isCollapsed ? 'center' : 'flex-start',
               '&:hover': {
                 backgroundColor: activePage === item.id ? 'rgba(14, 165, 233, 0.15)' : 'action.hover',
                 color: 'text.primary',
@@ -98,21 +104,28 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             }}
           >
             <MaterialIcon icon={item.icon} fill={activePage === item.id} opsz={20} />
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.label}</Typography>
+            {!isCollapsed && <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{item.label}</Typography>}
           </ButtonBase>
         ))}
       </Box>
 
       <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2 }}>
-        <Box sx={{ p: 2, backgroundColor: 'action.hover', borderRadius: 2, mb: 3 }}>
-          <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.2, color: 'text.primary' }}>{user.name}</Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{user.role}</Typography>
-        </Box>
+        {!isCollapsed ? (
+          <Box sx={{ p: 2, backgroundColor: 'action.hover', borderRadius: 2, mb: 3 }}>
+            <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.2, color: 'text.primary', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</Typography>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block' }}>{user.role}</Typography>
+          </Box>
+        ) : (
+          <Box sx={{ width: 40, height: 40, backgroundColor: 'action.hover', borderRadius: 2, mb: 3, mx: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary' }}>{user.name[0]}</Typography>
+          </Box>
+        )}
         
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {[
             { label: isDarkMode ? 'Light Mode' : 'Dark Mode', icon: isDarkMode ? 'light_mode' : 'dark_mode', action: toggleTheme },
             { label: 'Sign Out', icon: 'logout', action: onLogout },
+            { label: isCollapsed ? 'Expand' : 'Collapse', icon: isCollapsed ? 'chevron_right' : 'chevron_left', action: toggleCollapse },
           ].map((item) => (
             <ButtonBase
               key={item.label}
@@ -123,15 +136,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                 alignItems: 'center',
                 gap: 2,
                 py: 1,
-                px: 2,
+                px: isCollapsed ? 0 : 2,
                 color: 'text.secondary',
-                justifyContent: 'flex-start',
+                justifyContent: isCollapsed ? 'center' : 'flex-start',
                 borderRadius: 1,
                 '&:hover': { backgroundColor: 'action.hover', color: 'text.primary' }
               }}
             >
               <MaterialIcon icon={item.icon} opsz={18} />
-              <Typography variant="caption" sx={{ fontWeight: 600 }}>{item.label}</Typography>
+              {!isCollapsed && <Typography variant="caption" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{item.label}</Typography>}
             </ButtonBase>
           ))}
         </Box>
@@ -143,7 +156,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
     <Box sx={{ display: 'flex', height: '100vh', width: '100vw', backgroundColor: 'background.default', overflow: 'hidden' }}>
       {/* Sidebar for desktop */}
       {!isMobile && (
-        <Box sx={{ width: 260, backgroundColor: 'background.paper', borderRight: '1px solid', borderColor: 'divider' }}>
+        <Box sx={{ width: isCollapsed ? 80 : 260, transition: 'width 0.2s', backgroundColor: 'background.paper', borderRight: '1px solid', borderColor: 'divider', flexShrink: 0 }}>
           {sidebarContent}
         </Box>
       )}
