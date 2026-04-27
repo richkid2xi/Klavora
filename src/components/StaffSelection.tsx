@@ -5,10 +5,8 @@ import {
   Avatar,
   Typography,
   ButtonBase,
-  useTheme,
-  IconButton,
 } from '@mui/material'
-import { mockStaff } from '../mock'
+import { mockStaff, StaffMember } from '../mock'
 import { MaterialIcon } from './MaterialIcon'
 
 interface StaffSelectionProps {
@@ -16,28 +14,41 @@ interface StaffSelectionProps {
 }
 
 export const StaffSelection: React.FC<StaffSelectionProps> = ({ onStaffSelect }) => {
-  const theme = useTheme()
-  const isDarkMode = theme.palette.mode === 'dark'
-  const [selectedStaff, setSelectedStaff] = useState<any>(null)
+  const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null)
   const [pin, setPin] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
 
-  const handleStaffClick = (staff: any) => {
+  const handleStaffClick = (staff: StaffMember) => {
     setSelectedStaff(staff)
     setPin('')
+    setError(false)
   }
 
   const handleBack = () => {
     setSelectedStaff(null)
     setPin('')
+    setError(false)
   }
 
-  const handleNumberClick = (num: string) => {
-    if (pin.length < 4) {
+  const handleNumberClick = async (num: string) => {
+    if (pin.length < 4 && !loading) {
       const newPin = pin + num
       setPin(newPin)
+      setError(false)
+
       if (newPin.length === 4) {
-        // Automatically submit if PIN is 4 digits
-        onStaffSelect(selectedStaff.id, selectedStaff.name)
+        setLoading(true)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        if (newPin === '1234' && selectedStaff) {
+          setLoading(false)
+          onStaffSelect(selectedStaff.id, selectedStaff.name)
+        } else {
+          setLoading(false)
+          setError(true)
+          setPin('')
+        }
       }
     }
   }
@@ -49,80 +60,81 @@ export const StaffSelection: React.FC<StaffSelectionProps> = ({ onStaffSelect })
   if (selectedStaff) {
     return (
       <Box 
-        className="custom-scrollbar"
         sx={{ 
           width: '100%', 
           display: 'flex', 
           flexDirection: 'column', 
           alignItems: 'center', 
-          maxHeight: 400, // Allow scrolling if content overflows
-          overflowY: 'auto',
-          pr: 1, // Space for the scrollbar
         }}
       >
-        {/* Back Button */}
-        <Box sx={{ width: '100%', mb: 2 }}>
+        <Box sx={{ width: '100%', mb: 3 }}>
           <ButtonBase
             onClick={handleBack}
             sx={{
-              color: 'rgba(255, 255, 255, 0.4)',
+              color: 'text.secondary',
               display: 'flex',
               alignItems: 'center',
               gap: 0.5,
-              fontSize: '0.8rem',
-              fontWeight: 500,
-              '&:hover': { color: '#ffffff' }
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              '&:hover': { color: 'text.primary' }
             }}
           >
-            <MaterialIcon icon="arrow_back" opsz={16} />
+            <MaterialIcon icon="arrow_back" opsz={18} />
             Back
           </ButtonBase>
         </Box>
 
-        {/* Staff Header */}
-        <Box sx={{ textAlign: 'center', mb: 2 }}>
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Avatar
             sx={{
               bgcolor: selectedStaff.color,
-              width: 52,
-              height: 52,
-              fontSize: '1.1rem',
+              width: 64,
+              height: 64,
+              fontSize: '1.25rem',
               fontWeight: 700,
               mx: 'auto',
-              mb: 1.5,
+              mb: 2,
+              boxShadow: `0 8px 16px ${selectedStaff.color}25`,
             }}
           >
             {selectedStaff.initials}
           </Avatar>
-          <Typography variant="body1" sx={{ fontWeight: 600, color: '#ffffff', mb: 0.2, fontSize: '0.95rem' }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
             {selectedStaff.name}
           </Typography>
-          <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.3)', fontWeight: 500, fontSize: '0.7rem' }}>
-            Enter your 4-digit PIN
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: error ? '#EF4444' : 'text.secondary', 
+              fontWeight: 500,
+              fontSize: '0.8rem'
+            }}
+          >
+            {error ? 'Invalid PIN, try again' : 'Enter your 4-digit PIN'}
           </Typography>
         </Box>
 
-        {/* PIN Display */}
-        <Box sx={{ display: 'flex', gap: 1.5, mb: 3 }}>
+        <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
           {[...Array(4)].map((_, i) => (
             <Box
               key={i}
               sx={{
-                width: 8,
-                height: 8,
+                width: 12,
+                height: 12,
                 borderRadius: '50%',
-                border: '1px solid',
-                borderColor: 'rgba(255, 255, 255, 0.15)',
-                backgroundColor: i < pin.length ? 'rgba(255, 255, 255, 0.6)' : 'transparent',
-                transition: 'all 0.2s ease',
+                border: '2px solid',
+                borderColor: error ? '#EF4444' : (i < pin.length ? '#0EA5E9' : 'divider'),
+                backgroundColor: i < pin.length ? (error ? '#EF4444' : '#0EA5E9') : 'transparent',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: i < pin.length ? 'scale(1.1)' : 'scale(1)',
               }}
             />
           ))}
         </Box>
 
-        {/* Keypad */}
-        <Box sx={{ width: '100%', maxWidth: 260 }}>
-          <Grid container spacing={1}>
+        <Box sx={{ width: '100%', maxWidth: 280 }}>
+          <Grid container spacing={2}>
             {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map((key, i) => (
               <Grid item xs={4} key={i}>
                 {key === 'delete' ? (
@@ -130,32 +142,30 @@ export const StaffSelection: React.FC<StaffSelectionProps> = ({ onStaffSelect })
                     onClick={handleDelete}
                     sx={{
                       width: '100%',
-                      height: 50,
-                      borderRadius: 2,
-                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid',
-                      borderColor: 'rgba(255, 255, 255, 0.04)',
-                      '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' }
+                      height: 56,
+                      borderRadius: 3,
+                      backgroundColor: 'rgba(0,0,0,0.02)',
+                      '&:hover': { backgroundColor: 'rgba(0,0,0,0.05)' }
                     }}
                   >
-                    <MaterialIcon icon="backspace" opsz={18} style={{ opacity: 0.4 }} />
+                    <MaterialIcon icon="backspace" opsz={20} style={{ color: '#64748B' }} />
                   </ButtonBase>
                 ) : key === '' ? (
-                  <Box sx={{ height: 50 }} />
+                  <Box sx={{ height: 56 }} />
                 ) : (
                   <ButtonBase
                     onClick={() => handleNumberClick(key)}
                     sx={{
                       width: '100%',
-                      height: 50,
-                      borderRadius: 2,
-                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                      border: '1px solid',
-                      borderColor: 'rgba(255, 255, 255, 0.06)',
-                      fontSize: '1rem',
+                      height: 56,
+                      borderRadius: 3,
+                      backgroundColor: 'rgba(0,0,0,0.03)',
+                      fontSize: '1.25rem',
                       fontWeight: 700,
-                      color: '#ffffff',
-                      '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' }
+                      color: 'text.primary',
+                      transition: 'all 0.1s',
+                      '&:hover': { backgroundColor: 'rgba(0,0,0,0.06)' },
+                      '&:active': { transform: 'scale(0.95)' }
                     }}
                   >
                     {key}
@@ -165,81 +175,66 @@ export const StaffSelection: React.FC<StaffSelectionProps> = ({ onStaffSelect })
             ))}
           </Grid>
         </Box>
-
-        {/* Footer */}
-        <Box sx={{ mt: 3, textAlign: 'center' }}>
-          <Typography 
-            variant="caption" 
-            sx={{ 
-              color: 'rgba(255, 255, 255, 0.15)', 
-              fontFamily: 'monospace',
-              fontSize: '0.65rem'
-            }}
-          >
-            Demo PIN: 1234
-          </Typography>
-        </Box>
       </Box>
     )
   }
 
   return (
-    <Box sx={{ width: '100%', height: '100%' }}>
+    <Box sx={{ width: '100%' }}>
       <Typography
         variant="body2"
         sx={{
-          mb: 2.5,
-          textAlign: 'left',
+          mb: 3,
+          textAlign: 'center',
           fontWeight: 600,
-          color: 'rgba(255, 255, 255, 0.4)',
-          fontSize: '0.85rem',
+          color: 'text.secondary',
         }}
       >
         Select your name to continue
       </Typography>
 
-      <Grid container spacing={1.5}>
-        {mockStaff.map((staff) => (
-          <Grid item xs={12} sm={6} key={staff.id}>
+      <Grid container spacing={2}>
+        {mockStaff.map((staff: StaffMember) => (
+          <Grid item xs={6} key={staff.id}>
             <ButtonBase
               onClick={() => handleStaffClick(staff)}
               sx={{
                 width: '100%',
                 display: 'flex',
-                justifyContent: 'flex-start',
-                alignItems: 'center',
+                flexDirection: 'column',
                 gap: 1.5,
-                p: 1.2,
-                borderRadius: 2.5,
+                p: 2.5,
+                borderRadius: 4,
                 border: '1px solid',
-                borderColor: 'rgba(255, 255, 255, 0.06)',
-                backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                borderColor: 'divider',
+                backgroundColor: 'rgba(0,0,0,0.01)',
                 transition: 'all 0.2s ease',
                 '&:hover': {
-                  borderColor: 'rgba(255, 255, 255, 0.1)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                  borderColor: '#0EA5E9',
+                  backgroundColor: 'rgba(14, 165, 233, 0.04)',
+                  transform: 'translateY(-2px)',
                 },
               }}
             >
               <Avatar
                 sx={{
                   bgcolor: staff.color,
-                  width: 36,
-                  height: 36,
-                  fontSize: '0.85rem',
+                  width: 48,
+                  height: 48,
+                  fontSize: '1rem',
                   fontWeight: 700,
+                  boxShadow: `0 4px 12px ${staff.color}20`,
                 }}
               >
                 {staff.initials}
               </Avatar>
-              <Box sx={{ textAlign: 'left' }}>
+              <Box sx={{ textAlign: 'center' }}>
                 <Typography
                   variant="body2"
                   sx={{
-                    fontWeight: 600,
-                    color: '#ffffff',
+                    fontWeight: 700,
+                    color: 'text.primary',
                     lineHeight: 1.2,
-                    fontSize: '0.85rem'
                   }}
                 >
                   {staff.name}
@@ -248,8 +243,7 @@ export const StaffSelection: React.FC<StaffSelectionProps> = ({ onStaffSelect })
                   variant="caption"
                   sx={{
                     fontWeight: 500,
-                    color: 'rgba(255, 255, 255, 0.2)',
-                    fontSize: '0.7rem'
+                    color: 'text.secondary',
                   }}
                 >
                   {staff.role}

@@ -2,10 +2,9 @@ import React, { useState } from 'react'
 import {
   Box,
   Paper,
-  Tabs,
-  Tab,
   Typography,
   IconButton,
+  Button,
   useMediaQuery,
   useTheme as useMuiTheme,
   Link,
@@ -37,26 +36,27 @@ function TabPanel(props: TabPanelProps) {
   )
 }
 
-export const AuthPage: React.FC<{ onRegisterClick: () => void }> = ({ onRegisterClick }) => {
+export const AuthPage: React.FC<{ 
+  onRegisterClick: () => void;
+  onLoginSuccess: (name: string, role: string) => void;
+}> = ({ onRegisterClick, onLoginSuccess }) => {
   const { isDarkMode, toggleTheme } = useThemeContext()
   const muiTheme = useMuiTheme()
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'))
   const [tabValue, setTabValue] = useState(0)
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue)
-  }
-
   const handleOwnerLogin = (email: string, password: string) => {
-    console.log('Owner login:', email, password)
+    if (email && password) {
+      onLoginSuccess('Pharmacy Owner', 'Administrator')
+    }
   }
 
   const handleDemoClick = () => {
-    console.log('Demo account clicked')
+    onLoginSuccess('Demo Owner', 'Administrator')
   }
 
-  const handleStaffSelect = (staffId: number, staffName: string) => {
-    console.log('Staff selected:', staffId, staffName)
+  const handleStaffSelect = (_staffId: number, staffName: string) => {
+    onLoginSuccess(staffName, 'Staff')
   }
 
   return (
@@ -66,34 +66,41 @@ export const AuthPage: React.FC<{ onRegisterClick: () => void }> = ({ onRegister
         width: '100vw',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: 'background.default',
+        backgroundColor: isDarkMode ? 'background.default' : '#EEF2F6',
+        backgroundImage: isDarkMode 
+          ? 'radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.1) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.1) 0, transparent 50%)'
+          : 'radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.05) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.05) 0, transparent 50%)',
         overflow: 'hidden',
+        position: 'relative',
       }}
     >
-      {/* Header with Theme Toggle - Absolute positioned to not interfere with centering */}
+      {/* Header with Theme Toggle */}
       <Box
         sx={{
           position: 'absolute',
-          top: 16,
-          right: 16,
+          top: 24,
+          right: 24,
           zIndex: 10,
         }}
       >
         <IconButton
           onClick={toggleTheme}
           sx={{
-            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+            backgroundColor: 'background.paper',
             border: '1px solid',
-            borderColor: 'rgba(255, 255, 255, 0.08)',
-            borderRadius: 2,
-            p: 0.8,
+            borderColor: 'divider',
+            borderRadius: 3,
+            p: 1,
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+            '&:hover': {
+              backgroundColor: 'action.hover',
+            }
           }}
         >
           <MaterialIcon 
             icon={isDarkMode ? 'light_mode' : 'dark_mode'} 
             fill={isDarkMode}
-            opsz={18}
-            style={{ color: isDarkMode ? 'rgba(255, 255, 255, 0.6)' : 'inherit' }}
+            opsz={20} 
           />
         </IconButton>
       </Box>
@@ -112,138 +119,153 @@ export const AuthPage: React.FC<{ onRegisterClick: () => void }> = ({ onRegister
         <Box 
           sx={{ 
             width: '100%', 
-            maxWidth: 420, 
+            maxWidth: 440, 
             display: 'flex', 
             flexDirection: 'column', 
             alignItems: 'center' 
           }}
         >
-          {/* Section 1: Logo */}
+          {/* Logo Section */}
           <Box
             sx={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              mb: 6, // Good space after logo
+              mb: 4,
             }}
           >
             <Box
               sx={{
+                backgroundColor: '#0EA5E9',
+                width: 48,
+                height: 48,
+                borderRadius: 2.5,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1.5,
-                mb: 1,
+                justifyContent: 'center',
+                mb: 2,
+                boxShadow: '0 4px 12px rgba(14, 165, 233, 0.25)',
               }}
             >
-              <Box
-                sx={{
-                  backgroundColor: '#00a3ff',
-                  width: 30,
-                  height: 30,
-                  borderRadius: 1.2,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <MaterialIcon icon="medication" fill weight={600} opsz={20} style={{ color: 'white' }} />
-              </Box>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 600,
-                  fontSize: '1.4rem',
-                  letterSpacing: '-0.01em',
-                  color: 'text.primary',
-                }}
-              >
-                Klavora
-              </Typography>
+              <MaterialIcon icon="medication" fill weight={600} opsz={28} style={{ color: 'white' }} />
             </Box>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 700,
+                color: 'text.primary',
+                mb: 0.5,
+              }}
+            >
+              Klavora
+            </Typography>
             <Typography
               variant="body2"
               sx={{
                 color: 'text.secondary',
                 fontWeight: 500,
-                fontSize: '0.9rem',
               }}
             >
               Accra Central Pharmacy
             </Typography>
           </Box>
 
-          {/* Section 2: Toggle */}
-          <Box sx={{ width: '100%', mb: 5 }}>
-            <Tabs
-              value={tabValue}
-              onChange={handleTabChange}
-              variant="fullWidth"
+          {/* Segmented Tabs */}
+          <Box 
+            sx={{ 
+              width: '100%', 
+              backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)',
+              borderRadius: 4,
+              p: 0.75,
+              mb: 4,
+              display: 'flex',
+              gap: 0.5,
+            }}
+          >
+            <Button
+              fullWidth
+              onClick={() => setTabValue(0)}
               sx={{
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                borderRadius: '12px',
-                p: '4px',
-                minHeight: 'auto',
-                '& .MuiTabs-indicator': { display: 'none' },
-                '& .MuiTab-root': {
-                  minHeight: 40,
-                  borderRadius: '8px',
-                  textTransform: 'none',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                  color: 'text.secondary',
-                  '&.Mui-selected': {
-                    backgroundColor: 'action.hover',
-                    color: 'text.primary',
-                  }
+                borderRadius: 3.5,
+                py: 1,
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                backgroundColor: tabValue === 0 ? 'background.paper' : 'transparent',
+                color: tabValue === 0 ? 'text.primary' : 'text.secondary',
+                boxShadow: tabValue === 0 ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                '&:hover': {
+                  backgroundColor: tabValue === 0 ? 'background.paper' : 'rgba(0,0,0,0.02)',
                 }
               }}
             >
-              <Tab label="Owner Login" id="auth-tab-0" />
-              <Tab label="Staff Login" id="auth-tab-1" />
-            </Tabs>
-          </Box>
-
-          {/* Section 3: Card + Link */}
-          <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Paper
-              elevation={0}
+              Owner Login
+            </Button>
+            <Button
+              fullWidth
+              onClick={() => setTabValue(1)}
               sx={{
-                width: '100%',
-                p: isMobile ? 3 : 4,
-                borderRadius: 4,
-                backgroundColor: 'background.paper',
-                border: '1px solid',
-                borderColor: 'divider',
-                mb: 2,
+                borderRadius: 3.5,
+                py: 1,
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                backgroundColor: tabValue === 1 ? 'background.paper' : 'transparent',
+                color: tabValue === 1 ? 'text.primary' : 'text.secondary',
+                boxShadow: tabValue === 1 ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                '&:hover': {
+                  backgroundColor: tabValue === 1 ? 'background.paper' : 'rgba(0,0,0,0.02)',
+                }
               }}
             >
-              <TabPanel value={tabValue} index={0}>
-                <OwnerLogin onLogin={handleOwnerLogin} onDemoClick={handleDemoClick} />
-              </TabPanel>
-
-              <TabPanel value={tabValue} index={1}>
-                <StaffSelection onStaffSelect={handleStaffSelect} />
-              </TabPanel>
-            </Paper>
-
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500, fontSize: '0.85rem' }}>
-                New pharmacy?{' '}
-                <Link 
-                  component="button"
-                  onClick={onRegisterClick}
-                  sx={{ 
-                    color: '#00a3ff', 
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                    '&:hover': { textDecoration: 'underline' } 
-                  }}
-                >
-                  Create your account
-                </Link>
-              </Typography>
-            </Box>
+              Staff Login
+            </Button>
           </Box>
+
+          <Box sx={{ width: '100%', mb: 3 }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                textAlign: 'center',
+                color: 'text.secondary',
+                fontWeight: 500,
+              }}
+            >
+              New pharmacy?{' '}
+              <Link 
+                component="button"
+                onClick={onRegisterClick}
+                sx={{ 
+                  color: '#0EA5E9', 
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  '&:hover': { textDecoration: 'underline' } 
+                }}
+              >
+                Create your account &rarr;
+              </Link>
+            </Typography>
+          </Box>
+
+          {/* Form Card */}
+          <Paper
+            elevation={0}
+            sx={{
+              width: '100%',
+              p: isMobile ? 3 : 4,
+              borderRadius: 6,
+              backgroundColor: 'background.paper',
+              border: '1px solid',
+              borderColor: 'divider',
+              boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05)',
+            }}
+          >
+            <TabPanel value={tabValue} index={0}>
+              <OwnerLogin onLogin={handleOwnerLogin} onDemoClick={handleDemoClick} />
+            </TabPanel>
+
+            <TabPanel value={tabValue} index={1}>
+              <StaffSelection onStaffSelect={handleStaffSelect} />
+            </TabPanel>
+          </Paper>
         </Box>
       </Box>
     </Box>

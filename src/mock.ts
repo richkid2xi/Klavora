@@ -1,7 +1,59 @@
 // Mock data structure for Klavora pharmacy inventory system
 // This file will be populated with real backend data in production
 
-export const mockPharmacies = [
+export interface Pharmacy {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  phone: string;
+  email: string;
+}
+
+export interface InventoryItem {
+  id: number;
+  name: string;
+  sku: string;
+  quantity: number;
+  minQuantity: number;
+  maxQuantity: number;
+  price: number;
+  unit: string;
+  category: string;
+  supplier: string;
+}
+
+export interface Transaction {
+  id: number;
+  type: 'sale' | 'restock';
+  itemId: number;
+  itemName: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  date: Date;
+  customerName?: string;
+  supplierName?: string;
+}
+
+export interface Stats {
+  totalProducts: number;
+  lowStockItems: number;
+  totalRevenue: number;
+  totalTransactions: number;
+}
+
+export interface StaffMember {
+  id: number;
+  name: string;
+  initials: string;
+  role: string;
+  color: string;
+}
+
+export const mockPharmacies: Pharmacy[] = [
   {
     id: 1,
     name: 'Riverside Pharmacy',
@@ -24,7 +76,7 @@ export const mockPharmacies = [
   },
 ];
 
-export const mockInventory = [
+export const mockInventory: InventoryItem[] = [
   {
     id: 1,
     name: 'Aspirin 500mg',
@@ -63,7 +115,7 @@ export const mockInventory = [
   },
 ];
 
-export const mockTransactions = [
+export const mockTransactions: Transaction[] = [
   {
     id: 1,
     type: 'sale',
@@ -88,14 +140,14 @@ export const mockTransactions = [
   },
 ];
 
-export const mockStats = {
+export const mockStats: Stats = {
   totalProducts: 45,
   lowStockItems: 3,
   totalRevenue: 12500.50,
   totalTransactions: 284,
 };
 
-export const mockStaff = [
+export const mockStaff: StaffMember[] = [
   {
     id: 1,
     name: 'Ama Owusu',

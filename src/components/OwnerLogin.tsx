@@ -18,31 +18,43 @@ export const OwnerLogin: React.FC<OwnerLoginProps> = ({ onLogin, onDemoClick }) 
   const [email, setEmail] = useState('owner@klavora.demo')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const handleClickShowPassword = () => {
+  const handleClickShowPassword = (e: React.MouseEvent) => {
+    e.preventDefault() 
     setShowPassword(!showPassword)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!email || !password) return
+
+    setLoading(true)
+    await new Promise(resolve => setTimeout(resolve, 1500))
+    setLoading(false)
     onLogin(email, password)
   }
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
-      <Box sx={{ mb: 2 }}>
+      <Box sx={{ mb: 2.5 }}>
         <Typography
           variant="caption"
           sx={{
             fontWeight: 700,
-            mb: 1,
-            color: 'rgba(255, 255, 255, 0.4)',
+            mb: 0.75,
+            color: 'text.secondary',
             display: 'block',
             letterSpacing: '0.05em',
             fontSize: '0.65rem',
+            textTransform: 'uppercase',
           }}
         >
-          EMAIL
+          Email
         </Typography>
         <TextField
           fullWidth
@@ -50,33 +62,23 @@ export const OwnerLogin: React.FC<OwnerLoginProps> = ({ onLogin, onDemoClick }) 
           placeholder="owner@klavora.demo"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: '#0a0f18',
-              '& input': {
-                color: '#ffffff',
-              },
-              '& fieldset': {
-                borderColor: 'rgba(255, 255, 255, 0.08)',
-              }
-            }
-          }}
         />
       </Box>
 
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 4 }}>
         <Typography
           variant="caption"
           sx={{
             fontWeight: 700,
-            mb: 1,
-            color: 'rgba(255, 255, 255, 0.4)',
+            mb: 0.75,
+            color: 'text.secondary',
             display: 'block',
             letterSpacing: '0.05em',
             fontSize: '0.65rem',
+            textTransform: 'uppercase',
           }}
         >
-          PASSWORD
+          Password
         </Typography>
         <TextField
           fullWidth
@@ -88,30 +90,20 @@ export const OwnerLogin: React.FC<OwnerLoginProps> = ({ onLogin, onDemoClick }) 
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton
+                 <IconButton
                   onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
                   edge="end"
                   size="small"
-                  sx={{ color: 'rgba(255, 255, 255, 0.2)' }}
+                  sx={{ color: 'text.secondary' }}
                 >
                   <MaterialIcon 
                     icon={showPassword ? 'visibility_off' : 'visibility'} 
-                    opsz={16} 
+                    opsz={20} 
                   />
                 </IconButton>
               </InputAdornment>
             ),
-          }}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: '#0a0f18',
-              '& input': {
-                color: '#ffffff',
-              },
-              '& fieldset': {
-                borderColor: 'rgba(255, 255, 255, 0.08)',
-              }
-            }
           }}
         />
       </Box>
@@ -120,40 +112,32 @@ export const OwnerLogin: React.FC<OwnerLoginProps> = ({ onLogin, onDemoClick }) 
         type="submit"
         fullWidth
         variant="contained"
+        disabled={loading}
         sx={{
-          mb: 1.5,
-          height: 42,
-          backgroundColor: '#00a3ff',
-          color: '#ffffff',
-          '&:hover': {
-            backgroundColor: '#0095e9',
-          },
-          fontSize: '0.9rem',
+          mb: 2,
+          height: 48,
+          fontSize: '1rem',
           fontWeight: 700,
-          borderRadius: 1.5,
-          textTransform: 'none',
+          borderRadius: 3,
         }}
       >
-        Sign In
+        {loading ? 'Signing in...' : 'Sign In'}
       </Button>
 
       <Button
         fullWidth
-        variant="outlined"
+        variant="text"
         onClick={onDemoClick}
-        startIcon={<MaterialIcon icon="science" opsz={16} style={{ opacity: 0.5 }} />}
+        startIcon={<MaterialIcon icon="science" opsz={18} />}
         sx={{
-          mb: 2,
-          height: 42,
-          borderColor: 'rgba(255, 255, 255, 0.08)',
-          color: 'rgba(255, 255, 255, 0.7)',
-          backgroundColor: 'transparent',
-          borderRadius: 1.5,
+          mb: 2.5,
+          height: 44,
+          color: 'text.secondary',
+          borderRadius: 3,
           fontWeight: 600,
-          textTransform: 'none',
           '&:hover': {
-            borderColor: 'rgba(255, 255, 255, 0.15)',
-            backgroundColor: 'rgba(255, 255, 255, 0.02)',
+            backgroundColor: 'action.hover',
+            color: 'text.primary',
           }
         }}
       >
@@ -165,10 +149,9 @@ export const OwnerLogin: React.FC<OwnerLoginProps> = ({ onLogin, onDemoClick }) 
           variant="caption" 
           sx={{ 
             fontWeight: 500, 
-            color: 'rgba(255, 255, 255, 0.2)', 
+            color: 'text.disabled', 
             fontFamily: 'monospace',
             letterSpacing: '0.02em',
-            fontSize: '0.7rem'
           }}
         >
           owner@klavora.demo / demo1234
