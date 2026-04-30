@@ -1,100 +1,47 @@
-import { useMemo, useState } from 'react'
-import { ThemeProvider } from '@mui/material/styles'
-import CssBaseline from '@mui/material/CssBaseline'
-import { lightTheme, darkTheme } from './styles/theme'
-import { ThemeProvider as CustomThemeProvider, useThemeContext } from './contexts/ThemeContext'
-import { AuthPage } from './pages/AuthPage'
-import { RegisterPage } from './pages/RegisterPage'
-import { Dashboard } from './pages/Dashboard'
-import { InventoryPage } from './pages/InventoryPage'
-import { SellPage } from './pages/SellPage'
-import { RestockPage } from './pages/RestockPage'
-import { AddInventoryPage } from './pages/AddInventoryPage'
-import { InsightsPage } from './pages/InsightsPage'
-import { StaffPage } from './pages/StaffPage'
-import { SettingsPage } from './pages/SettingsPage'
-import { AuditLogPage } from './pages/AuditLogPage'
-import { SalesMetricsPage } from './pages/SalesMetricsPage'
-import { MainLayout } from './components/MainLayout'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AppProvider } from '@/context/AppContext';
+import AppShell from '@/components/layout/AppShell';
 
-function AppContent() {
-  const { isDarkMode } = useThemeContext()
-  const theme = useMemo(() => (isDarkMode ? darkTheme : lightTheme), [isDarkMode])
-  const [user, setUser] = useState<{ name: string; role: string } | null>(null)
-  const [isRegistering, setIsRegistering] = useState(false)
-  const [activePage, setActivePage] = useState('dashboard')
+// Pages
+import DashboardPage from '@/pages/dashboard/page';
+import InventoryPage from '@/pages/inventory/page';
+import AddInventoryPage from '@/pages/add-inventory/page';
+import SellPage from '@/pages/sell/page';
+import RestockPage from '@/pages/restock/page';
+import SalesMetricsPage from '@/pages/sales-metrics/page';
+import StaffPage from '@/pages/staff/page';
+import SettingsPage from '@/pages/settings/page';
+import SignInPage from '@/pages/signin/page';
+import SignUpPage from '@/pages/signup/page';
+import AuditLogPage from '@/pages/audit-log/page';
 
-  const handleLoginSuccess = (name: string, role: string) => {
-    setUser({ name, role })
-  }
-
-  const handleLogout = () => {
-    setUser(null)
-    setActivePage('dashboard')
-  }
-
-  const renderContent = () => {
-    if (isRegistering) {
-      return <RegisterPage onBackToLogin={() => setIsRegistering(false)} />
-    }
-
-    if (!user) {
-      return <AuthPage onLoginSuccess={handleLoginSuccess} onRegisterClick={() => setIsRegistering(true)} />
-    }
-
-    const renderPage = () => {
-      switch (activePage) {
-        case 'dashboard':
-          return <Dashboard user={user} onLogout={handleLogout} />
-        case 'inventory':
-          return <InventoryPage />
-        case 'sell':
-          return <SellPage />
-        case 'restock':
-          return <RestockPage />
-        case 'add-inventory':
-          return <AddInventoryPage />
-        case 'insights':
-          return <InsightsPage />
-        case 'audit-log':
-          return <AuditLogPage />
-        case 'sales-metrics':
-          return <SalesMetricsPage />
-        case 'staff':
-          return <StaffPage />
-        case 'settings':
-          return <SettingsPage />
-        default:
-          return <Dashboard user={user} onLogout={handleLogout} />
-      }
-    }
-
-    return (
-      <MainLayout 
-        user={user} 
-        onLogout={handleLogout} 
-        activePage={activePage} 
-        onPageChange={setActivePage}
-      >
-        {renderPage()}
-      </MainLayout>
-    )
-  }
-
+export default function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      {renderContent()}
-    </ThemeProvider>
-  )
-}
+    <AppProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<SignInPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
 
-function App() {
-  return (
-    <CustomThemeProvider>
-      <AppContent />
-    </CustomThemeProvider>
-  )
-}
+          {/* Protected Routes wrapped in AppShell */}
+          <Route element={<AppShell />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/inventory" element={<InventoryPage />} />
+            <Route path="/add-inventory" element={<AddInventoryPage />} />
+            <Route path="/sell" element={<SellPage />} />
+            <Route path="/restock" element={<RestockPage />} />
+            <Route path="/insights" element={<SalesMetricsPage />} />
+            <Route path="/sales-metrics" element={<SalesMetricsPage />} />
+            <Route path="/staff" element={<StaffPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/audit-log" element={<AuditLogPage />} />
+          </Route>
 
-export default App
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AppProvider>
+  );
+}

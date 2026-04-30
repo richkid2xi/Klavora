@@ -1,206 +1,119 @@
-import React, { useState } from 'react'
-import {
-  Box,
-  Typography,
-  IconButton,
-  Drawer,
-  useMediaQuery,
-  useTheme as useMuiTheme,
-  ButtonBase,
-} from '@mui/material'
-import { MaterialIcon } from './MaterialIcon'
-import { useThemeContext } from '../contexts/ThemeContext'
+import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useApp } from '@/context/AppContext';
 
-interface MainLayoutProps {
-  children: React.ReactNode
-  user: { name: string; role: string }
-  onLogout: () => void
-  activePage: string
-  onPageChange: (page: string) => void
-}
+export function MainLayout({ children }: { children: React.ReactNode }) {
+  const { user } = useApp();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    return document.documentElement.classList.contains('dark');
+  });
 
-export const MainLayout: React.FC<MainLayoutProps> = ({ 
-  children, 
-  user, 
-  onLogout, 
-  activePage, 
-  onPageChange 
-}) => {
-  const { isDarkMode, toggleTheme } = useThemeContext()
-  const muiTheme = useMuiTheme()
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'))
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [isCollapsed, setIsCollapsed] = useState(false)
-
-  const toggleCollapse = () => setIsCollapsed(!isCollapsed)
+  const toggleTheme = () => {
+    setIsDark(d => {
+      const next = !d;
+      if (next) document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+      return next;
+    });
+  };
 
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
-    { id: 'inventory', label: 'Inventory', icon: 'inventory_2' },
-    { id: 'sell', label: 'Sell', icon: 'shopping_cart' },
-    { id: 'restock', label: 'Restock', icon: 'add_business' },
-    { id: 'add-inventory', label: 'Add Inventory', icon: 'add_box' },
-    { id: 'insights', label: 'Insights', icon: 'analytics' },
-    { id: 'audit-log', label: 'Audit Log', icon: 'history_edu' },
-    { id: 'sales-metrics', label: 'Sales Metrics', icon: 'trending_up' },
-    { id: 'staff', label: 'Staff', icon: 'groups' },
-    { id: 'settings', label: 'Settings', icon: 'settings' },
-  ]
+    { path: '/', label: 'Dashboard', icon: 'ri-dashboard-line' },
+    { path: '/inventory', label: 'Inventory', icon: 'ri-medicine-bottle-line' },
+    { path: '/sell', label: 'Sell', icon: 'ri-shopping-cart-2-line' },
+    { path: '/restock', label: 'Restock', icon: 'ri-add-box-line' },
+    { path: '/insights', label: 'Insights', icon: 'ri-bar-chart-2-line' },
+  ];
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen)
-  }
-
-  const handlePageClick = (id: string) => {
-    onPageChange(id)
-    if (isMobile) setMobileOpen(false)
-  }
+  const handleNav = (path: string) => {
+    navigate(path);
+    setIsMobileMenuOpen(false);
+  };
 
   const sidebarContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', p: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 6, px: 1 }}>
-        <Box
-          sx={{
-            backgroundColor: 'primary.main',
-            width: 32,
-            height: 32,
-            borderRadius: 1.5,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <MaterialIcon icon="medication" fill weight={600} opsz={20} style={{ color: 'white' }} />
-        </Box>
-        {!isCollapsed && (
-          <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: 'text.primary', whiteSpace: 'nowrap' }}>
-            Klavora
-          </Typography>
-        )}
-      </Box>
+    <div className="flex flex-col h-full p-4">
+      <div className="flex items-center gap-3 mb-8 px-2">
+        <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center flex-shrink-0 text-white">
+          <i className="ri-capsule-line text-lg"></i>
+        </div>
+        <span className="text-lg font-heading font-800 tracking-tight text-gray-900 dark:text-white">Klavora</span>
+      </div>
 
-      <Box sx={{ flex: 1 }}>
-        {navItems.map((item) => (
-          <ButtonBase
-            key={item.id}
-            onClick={() => handlePageClick(item.id)}
-            sx={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-              py: 1.5,
-              px: 2,
-              borderRadius: 2,
-              mb: 0.5,
-              color: activePage === item.id ? 'primary.main' : 'text.secondary',
-              backgroundColor: activePage === item.id ? 'rgba(14, 165, 233, 0.1)' : 'transparent',
-              justifyContent: isCollapsed ? 'center' : 'flex-start',
-              '&:hover': {
-                backgroundColor: activePage === item.id ? 'rgba(14, 165, 233, 0.15)' : 'action.hover',
-                color: 'text.primary',
-              }
-            }}
-          >
-            <MaterialIcon icon={item.icon} fill={activePage === item.id} opsz={20} />
-            {!isCollapsed && <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{item.label}</Typography>}
-          </ButtonBase>
-        ))}
-      </Box>
-
-      <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2 }}>
-        {!isCollapsed ? (
-          <Box sx={{ p: 2, backgroundColor: 'action.hover', borderRadius: 2, mb: 3 }}>
-            <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.2, color: 'text.primary', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</Typography>
-            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block' }}>{user.role}</Typography>
-          </Box>
-        ) : (
-          <Box sx={{ width: 40, height: 40, backgroundColor: 'action.hover', borderRadius: 2, mb: 3, mx: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary' }}>{user.name[0]}</Typography>
-          </Box>
-        )}
-        
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          {[
-            { label: isDarkMode ? 'Light Mode' : 'Dark Mode', icon: isDarkMode ? 'light_mode' : 'dark_mode', action: toggleTheme },
-            { label: 'Sign Out', icon: 'logout', action: onLogout },
-            { label: isCollapsed ? 'Expand' : 'Collapse', icon: isCollapsed ? 'chevron_right' : 'chevron_left', action: toggleCollapse },
-          ].map((item) => (
-            <ButtonBase
-              key={item.label}
-              onClick={item.action}
-              sx={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 2,
-                py: 1,
-                px: isCollapsed ? 0 : 2,
-                color: 'text.secondary',
-                justifyContent: isCollapsed ? 'center' : 'flex-start',
-                borderRadius: 1,
-                '&:hover': { backgroundColor: 'action.hover', color: 'text.primary' }
-              }}
+      <div className="flex-1 space-y-1">
+        {navItems.map(item => {
+          const active = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+          return (
+            <button
+              key={item.path}
+              onClick={() => handleNav(item.path)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+                ${active ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-500' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}
             >
-              <MaterialIcon icon={item.icon} opsz={18} />
-              {!isCollapsed && <Typography variant="caption" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{item.label}</Typography>}
-            </ButtonBase>
-          ))}
-        </Box>
-      </Box>
-    </Box>
-  )
+              <i className={`${item.icon} text-lg`}></i>
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-auto border-t border-border-light dark:border-border-dark pt-4 space-y-1">
+        <div className="px-3 py-2.5 mb-2 bg-gray-50 dark:bg-surface-dark rounded-lg">
+          <p className="text-sm font-heading font-600 text-gray-900 dark:text-white truncate">{user?.name}</p>
+          <p className="text-xs font-mono uppercase tracking-widest text-gray-400 mt-0.5">{user?.role}</p>
+        </div>
+        <button
+          onClick={toggleTheme}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
+        >
+          <i className={`${isDark ? 'ri-sun-line' : 'ri-moon-line'} text-lg`}></i>
+          {isDark ? 'Light Mode' : 'Dark Mode'}
+        </button>
+        <button
+          onClick={() => alert('Logged out!')}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
+        >
+          <i className="ri-logout-box-r-line text-lg"></i>
+          Sign Out
+        </button>
+      </div>
+    </div>
+  );
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', width: '100vw', backgroundColor: 'background.default', overflow: 'hidden' }}>
-      {/* Sidebar for desktop */}
-      {!isMobile && (
-        <Box sx={{ width: isCollapsed ? 80 : 260, transition: 'width 0.2s', backgroundColor: 'background.paper', borderRight: '1px solid', borderColor: 'divider', flexShrink: 0 }}>
-          {sidebarContent}
-        </Box>
+    <div className="flex h-screen w-full bg-bg-light dark:bg-bg-dark overflow-hidden">
+      {/* Desktop Sidebar */}
+      <div className="hidden md:block w-64 flex-shrink-0 bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark h-full">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile Drawer Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsMobileMenuOpen(false)}></div>
       )}
 
       {/* Mobile Drawer */}
-      <Drawer
-        variant="temporary"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { width: 260, backgroundColor: 'background.paper', backgroundImage: 'none' },
-        }}
-      >
+      <div className={`fixed inset-y-0 left-0 w-64 bg-surface-light dark:bg-surface-dark z-50 transform transition-transform md:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {sidebarContent}
-      </Drawer>
+      </div>
 
-      {/* Main Content Area */}
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col h-full min-w-0">
         {/* Mobile Header */}
-        {isMobile && (
-          <Box
-            sx={{
-              height: 64,
-              display: 'flex',
-              alignItems: 'center',
-              px: 2,
-              backgroundColor: 'background.paper',
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-            }}
-          >
-            <IconButton onClick={handleDrawerToggle} sx={{ color: 'text.primary', mr: 2 }}>
-              <MaterialIcon icon="menu" />
-            </IconButton>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>Klavora</Typography>
-          </Box>
-        )}
+        <div className="md:hidden h-16 flex items-center px-4 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark flex-shrink-0">
+          <button onClick={() => setIsMobileMenuOpen(true)} className="p-1 -ml-1 mr-3 text-gray-500 hover:text-gray-900 dark:hover:text-white cursor-pointer">
+            <i className="ri-menu-2-line text-2xl"></i>
+          </button>
+          <span className="text-lg font-heading font-800 tracking-tight text-gray-900 dark:text-white">Klavora</span>
+        </div>
 
-        <Box sx={{ flex: 1, overflowY: 'auto', p: { xs: 2, md: 6 } }} className="custom-scrollbar">
+        {/* Page Content */}
+        <div className="flex-1 overflow-y-auto">
           {children}
-        </Box>
-      </Box>
-    </Box>
-  )
+        </div>
+      </div>
+    </div>
+  );
 }
