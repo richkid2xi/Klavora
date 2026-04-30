@@ -55,9 +55,10 @@ export const StaffSelection: React.FC<StaffSelectionProps> = ({ onStaffSelect })
           display: 'flex', 
           flexDirection: 'column', 
           alignItems: 'center', 
-          maxHeight: 400, // Allow scrolling if content overflows
+          maxHeight: 360, // Fixed height for scrolling content
           overflowY: 'auto',
-          pr: 1, // Space for the scrollbar
+          overflowX: 'hidden',
+          pr: 0.5, // Space for the scrollbar
         }}
       >
         {/* Back Button */}
@@ -184,7 +185,16 @@ export const StaffSelection: React.FC<StaffSelectionProps> = ({ onStaffSelect })
   }
 
   return (
-    <Box sx={{ width: '100%', height: '100%' }}>
+    <Box 
+      className="custom-scrollbar"
+      sx={{ 
+        width: '100%', 
+        maxHeight: 360, 
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        pr: 0.5,
+      }}
+    >
       <Typography
         variant="body2"
         sx={{

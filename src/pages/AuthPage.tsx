@@ -69,6 +69,9 @@ export const AuthPage: React.FC<{ onRegisterClick: () => void }> = ({ onRegister
         flexDirection: 'column',
         backgroundColor: 'background.default',
         overflow: 'hidden',
+        position: 'fixed', // Ensure it stays fixed
+        top: 0,
+        left: 0,
       }}
     >
       {/* Header with Theme Toggle - Absolute positioned to not interfere with centering */}
@@ -108,7 +111,10 @@ export const AuthPage: React.FC<{ onRegisterClick: () => void }> = ({ onRegister
           alignItems: 'center',
           justifyContent: 'center',
           p: 2,
+          overflowY: 'auto', // Allow the content area to scroll if it exceeds viewport
+          width: '100%',
         }}
+        className="custom-scrollbar"
       >
         <Box 
           sx={{ 
