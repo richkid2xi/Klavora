@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import type { Drug, Batch, Transaction } from '@/mocks/types';
@@ -119,18 +119,12 @@ function ActivityItem({ tx }: { tx: Transaction }) {
 
 function SubscriptionBanner() {
   const RENEWAL_DAYS = 14; // mock: 14 days until renewal
-  const [dismissed, setDismissed] = useState(false);
-
-  useEffect(() => {
-    const ts = localStorage.getItem('klavora-sub-dismissed');
-    if (ts) {
-      const diff = Date.now() - parseInt(ts, 10);
-      if (diff < 86400000) setDismissed(true);
-    }
-  }, []);
+  const [dismissed, setDismissed] = useState(() => {
+    return sessionStorage.getItem('klavora-sub-dismissed') === 'true';
+  });
 
   const handleDismiss = () => {
-    localStorage.setItem('klavora-sub-dismissed', Date.now().toString());
+    sessionStorage.setItem('klavora-sub-dismissed', 'true');
     setDismissed(true);
   };
 
