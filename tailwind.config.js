@@ -75,15 +75,15 @@ export default {
         },
         surface: {
           light: '#ffffff',
-          dark: '#1e293b',
+          dark: '#161b22',
         },
         bg: {
           light: '#f8fafc',
-          dark: '#0f172a',
+          dark: '#0d1117',
         },
         border: {
           light: '#e2e8f0',
-          dark: '#334155',
+          dark: '#21262d',
         }
       },
       borderRadius: {
