@@ -5,10 +5,9 @@ interface MedicineAutocompleteProps {
   value: string;
   onChange: (val: string) => void;
   placeholder?: string;
-  existingNames?: string[];
 }
 
-export default function MedicineAutocomplete({ value, onChange, placeholder = 'e.g. Amoxicillin 500mg', existingNames = [] }: MedicineAutocompleteProps) {
+export default function MedicineAutocomplete({ value, onChange, placeholder = 'e.g. Amoxicillin 500mg' }: MedicineAutocompleteProps) {
   const [open, setOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const ref = useRef<HTMLDivElement>(null);
@@ -26,11 +25,11 @@ export default function MedicineAutocomplete({ value, onChange, placeholder = 'e
     if (!query.trim()) { setSuggestions([]); setOpen(false); return; }
     const q = query.toLowerCase();
     const filtered = medicineSuggestions
-      .filter(s => s.toLowerCase().includes(q) && !existingNames.includes(s))
+      .filter(s => s.toLowerCase().includes(q))
       .slice(0, 8);
     setSuggestions(filtered);
     setOpen(filtered.length > 0);
-  }, [existingNames]);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;

@@ -398,7 +398,7 @@ export default function SellPage() {
       <div className="p-4 md:p-6 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div>
-            <div className="bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark p-6 mb-4">
+            <div id="print-receipt" className="bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark p-6 mb-4">
               <div className="text-center mb-5">
                 <div className="w-14 h-14 flex items-center justify-center mx-auto mb-3 rounded-full bg-success-50 dark:bg-success-500/10">
                   <i className="ri-check-line text-success-500 text-2xl"></i>

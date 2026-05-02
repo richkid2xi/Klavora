@@ -54,6 +54,7 @@ export interface Staff {
   initials: string;
   lastActive: string;
   role: 'owner' | 'staff';
+  staffRole?: 'sales' | 'restock' | 'general' | 'other';
 }
 
 export interface Pharmacy {

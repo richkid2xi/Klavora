@@ -58,15 +58,15 @@ export default function InventoryTable({ drugs, onEdit }: InventoryTableProps) {
     <div className="bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark overflow-hidden">
       {/* Table header */}
       <div className="p-4 border-b border-border-light dark:border-border-dark">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="w-full sm:w-72 md:w-80 flex-shrink-0">
             <MedicineAutocomplete
               value={search}
               onChange={handleSearch}
               placeholder="Search inventory..."
             />
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
+          <div className="flex-1 min-w-0 flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
             {allCats.map(cat => (
               <button
                 key={cat}

@@ -57,18 +57,18 @@ export default function InventoryPage() {
       </div>
 
       {/* Search */}
-      <div className="relative mb-4">
-        <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base"></i>
+      <div className="relative mb-6">
+        <i className="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
         <input
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Search drugs..."
-          className="w-full h-10 pl-9 pr-4 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark text-sm font-body text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-primary-500 transition-colors"
+          placeholder="Search medicines..."
+          className="w-full h-12 pl-11 pr-4 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark text-base font-body text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-primary-500 transition-colors shadow-sm"
         />
         {search && (
-          <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer">
-            <i className="ri-close-line"></i>
+          <button onClick={() => setSearch('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer">
+            <i className="ri-close-line text-lg"></i>
           </button>
         )}
       </div>

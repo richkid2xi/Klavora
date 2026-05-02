@@ -22,6 +22,13 @@ export default function SignInPage() {
   const [pinError, setPinError] = useState('');
   const [pinShake, setPinShake] = useState(false);
 
+  // Forgot password state
+  const [forgotStep, setForgotStep] = useState<'none' | 'email' | 'code' | 'new_password' | 'success'>('none');
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotCode, setForgotCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+
   const staffOnly = staffMembers.filter(s => s.role === 'staff');
   const pharmacy = pharmacies[0];
 
@@ -89,7 +96,8 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-light dark:bg-bg-dark flex items-center justify-center p-4 transition-colors duration-200">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0f172a] flex flex-col items-center justify-center p-4 transition-colors duration-200 relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-primary-500/10 via-primary-500/5 to-transparent pointer-events-none" />
       {/* Theme toggle */}
       <button
         onClick={toggleTheme}
@@ -98,7 +106,7 @@ export default function SignInPage() {
         {theme === 'light' ? <i className="ri-moon-line text-base"></i> : <i className="ri-sun-line text-base"></i>}
       </button>
 
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-3">
@@ -107,34 +115,128 @@ export default function SignInPage() {
             </div>
             <span className="font-heading font-700 text-xl text-gray-900 dark:text-white tracking-tight">Klavora</span>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 font-body">{pharmacy.name}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-body">Smart Pharmacy Management</p>
         </div>
 
-        {/* Mode tabs */}
-        <div className="flex bg-gray-100 dark:bg-surface-dark rounded-lg p-1 mb-6 border border-border-light dark:border-border-dark">
-          <button
-            onClick={() => { setMode('owner'); setError(''); setPin(''); setSelectedStaff(null); }}
-            className={`flex-1 h-9 rounded-md text-sm font-medium font-body transition-all cursor-pointer whitespace-nowrap ${mode === 'owner' ? 'bg-white dark:bg-bg-dark text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
-          >
-            Owner Login
-          </button>
-          <button
-            onClick={() => { setMode('staff'); setError(''); setPin(''); setSelectedStaff(null); }}
-            className={`flex-1 h-9 rounded-md text-sm font-medium font-body transition-all cursor-pointer whitespace-nowrap ${mode === 'staff' ? 'bg-white dark:bg-bg-dark text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
-          >
-            Staff Login
-          </button>
-        </div>
+        {/* Mode tabs (Hide during forgot password flow) */}
+        {forgotStep === 'none' && (
+          <div className="flex bg-gray-100 dark:bg-surface-dark rounded-lg p-1 mb-6 border border-border-light dark:border-border-dark">
+            <button
+              onClick={() => { setMode('owner'); setError(''); setPin(''); setSelectedStaff(null); }}
+              className={`flex-1 h-9 rounded-md text-sm font-medium font-body transition-all cursor-pointer whitespace-nowrap ${mode === 'owner' ? 'bg-white dark:bg-bg-dark text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+            >
+              Owner Login
+            </button>
+            <button
+              onClick={() => { setMode('staff'); setError(''); setPin(''); setSelectedStaff(null); }}
+              className={`flex-1 h-9 rounded-md text-sm font-medium font-body transition-all cursor-pointer whitespace-nowrap ${mode === 'staff' ? 'bg-white dark:bg-bg-dark text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+            >
+              Staff Login
+            </button>
+          </div>
+        )}
 
-        {/* New pharmacy link */}
-        <div className="text-center mb-4">
-          <span className="text-xs text-gray-400 dark:text-gray-600 font-body">New pharmacy? </span>
-          <a href="/signup" className="text-xs text-primary-500 hover:text-primary-600 font-body font-medium cursor-pointer transition-colors">Create your account →</a>
-        </div>
 
         {/* Card */}
-        <div className="bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark p-6">
-          {mode === 'owner' ? (
+        <div className="bg-white dark:bg-surface-dark rounded-2xl border border-gray-100 dark:border-border-dark p-6 md:p-8 shadow-xl shadow-gray-200/40 dark:shadow-none">
+          {forgotStep !== 'none' ? (
+            <div className="space-y-4">
+              {forgotStep === 'email' && (
+                <form onSubmit={e => { e.preventDefault(); setError(''); if(!forgotEmail) setError('Email required'); else setForgotStep('code'); }} className="space-y-4">
+                  <h2 className="text-lg font-heading font-700 text-gray-900 dark:text-white">Reset Password</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-body">Enter the email associated with your account.</p>
+                  <div>
+                    <input
+                      type="email"
+                      value={forgotEmail}
+                      onChange={e => setForgotEmail(e.target.value)}
+                      placeholder="Email address"
+                      className="w-full h-11 px-4 rounded-xl border border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-bg-dark text-gray-900 dark:text-white text-sm font-body focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                    />
+                  </div>
+                  {error && <p className="text-xs text-danger-500">{error}</p>}
+                  <button type="submit" className="w-full h-11 bg-primary-500 hover:bg-primary-600 text-white rounded-xl text-sm font-medium font-body transition-colors cursor-pointer shadow-sm">
+                    Send Code
+                  </button>
+                  <button type="button" onClick={() => setForgotStep('none')} className="w-full h-btn border border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-white/5 text-gray-600 dark:text-gray-400 rounded-btn text-sm font-medium font-body cursor-pointer">
+                    Back to Login
+                  </button>
+                </form>
+              )}
+              {forgotStep === 'code' && (
+                <form onSubmit={e => { e.preventDefault(); setError(''); if(forgotCode.length !== 6) setError('Code must be 6 digits'); else setForgotStep('new_password'); }} className="space-y-4">
+                  <h2 className="text-lg font-heading font-700 text-gray-900 dark:text-white">Enter Reset Code</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-body">A 6-digit code has been sent to your email.</p>
+                  <div>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={forgotCode}
+                      onChange={e => setForgotCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="000000"
+                      className="w-full h-11 px-4 rounded-xl border border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-bg-dark text-gray-900 dark:text-white text-center text-lg tracking-[0.5em] font-mono focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                    />
+                  </div>
+                  {error && <p className="text-xs text-danger-500">{error}</p>}
+                  <button type="submit" className="w-full h-11 bg-primary-500 hover:bg-primary-600 text-white rounded-xl text-sm font-medium font-body transition-colors cursor-pointer shadow-sm">
+                    Verify Code
+                  </button>
+                  <button type="button" onClick={() => setForgotStep('none')} className="w-full h-btn border border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-white/5 text-gray-600 dark:text-gray-400 rounded-btn text-sm font-medium font-body cursor-pointer">
+                    Cancel
+                  </button>
+                </form>
+              )}
+              {forgotStep === 'new_password' && (
+                <form onSubmit={e => { 
+                  e.preventDefault(); 
+                  setError(''); 
+                  if(newPassword.length < 8) setError('Min 8 characters'); 
+                  else if(newPassword !== confirmNewPassword) setError('Passwords do not match'); 
+                  else {
+                    setForgotStep('success');
+                    setTimeout(() => {
+                      setForgotStep('none');
+                    }, 60000); // go back to login after 1 minute
+                  }
+                }} className="space-y-4">
+                  <h2 className="text-lg font-heading font-700 text-gray-900 dark:text-white">New Password</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-body">Create a new password for your account.</p>
+                  <div>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      placeholder="New password"
+                      className="w-full h-11 px-4 rounded-xl border border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-bg-dark text-gray-900 dark:text-white text-sm font-body focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 mb-3 transition-all"
+                    />
+                    <input
+                      type="password"
+                      value={confirmNewPassword}
+                      onChange={e => setConfirmNewPassword(e.target.value)}
+                      placeholder="Confirm new password"
+                      className="w-full h-11 px-4 rounded-xl border border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-bg-dark text-gray-900 dark:text-white text-sm font-body focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                    />
+                  </div>
+                  {error && <p className="text-xs text-danger-500">{error}</p>}
+                  <button type="submit" className="w-full h-11 bg-primary-500 hover:bg-primary-600 text-white rounded-xl text-sm font-medium font-body transition-colors cursor-pointer shadow-sm">
+                    Reset Password
+                  </button>
+                </form>
+              )}
+              {forgotStep === 'success' && (
+                <div className="text-center py-4">
+                  <div className="w-12 h-12 rounded-full bg-success-50 dark:bg-success-500/10 flex items-center justify-center mx-auto mb-4">
+                    <i className="ri-check-line text-success-500 text-2xl"></i>
+                  </div>
+                  <h2 className="text-lg font-heading font-700 text-gray-900 dark:text-white mb-2">Password Reset!</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-body mb-6">Your password has been changed successfully. Please log in with your new password.</p>
+                  <button onClick={() => setForgotStep('none')} className="w-full h-btn bg-primary-500 hover:bg-primary-600 text-white rounded-btn text-sm font-medium font-body transition-colors cursor-pointer">
+                    Back to Login
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : mode === 'owner' ? (
             <form onSubmit={handleOwnerLogin} className="space-y-4">
               <div>
                 <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Email</label>
@@ -143,7 +245,7 @@ export default function SignInPage() {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="owner@klavora.demo"
-                  className="w-full h-btn px-3 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-gray-900 dark:text-white text-sm font-body placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-primary-500 transition-colors"
+                  className="w-full h-11 px-4 rounded-xl border border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-bg-dark text-gray-900 dark:text-white text-sm font-body placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
                   required
                 />
               </div>
@@ -155,7 +257,7 @@ export default function SignInPage() {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full h-btn px-3 pr-10 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-gray-900 dark:text-white text-sm font-body placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-primary-500 transition-colors"
+                    className="w-full h-11 px-4 pr-10 rounded-xl border border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-bg-dark text-gray-900 dark:text-white text-sm font-body placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
                     required
                   />
                   <button
@@ -175,14 +277,23 @@ export default function SignInPage() {
               )}
               <button
                 type="submit"
-                className="w-full h-btn bg-primary-500 hover:bg-primary-600 text-white rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap"
+                className="w-full h-11 bg-primary-500 hover:bg-primary-600 text-white rounded-xl text-sm font-medium font-body transition-colors cursor-pointer shadow-sm whitespace-nowrap"
               >
                 Sign In
               </button>
+              <div className="flex justify-between items-center mt-2">
+                <button
+                  type="button"
+                  onClick={() => { setForgotStep('email'); setError(''); }}
+                  className="text-xs text-primary-500 hover:text-primary-600 font-body cursor-pointer"
+                >
+                  Forgot Password?
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={handleDemoFill}
-                className="w-full h-btn border border-border-light dark:border-border-dark hover:border-primary-500 hover:text-primary-500 text-gray-600 dark:text-gray-400 rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap"
+                className="w-full h-11 border border-gray-200 dark:border-border-dark hover:border-primary-500 hover:text-primary-500 text-gray-600 dark:text-gray-400 rounded-xl text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap bg-white dark:bg-surface-dark"
               >
                 <i className="ri-flask-line mr-2"></i>Use Demo Account
               </button>
@@ -281,6 +392,12 @@ export default function SignInPage() {
               )}
             </div>
           )}
+        </div>
+
+        {/* New pharmacy link — below card */}
+        <div className="text-center mt-5">
+          <span className="text-sm text-gray-500 dark:text-gray-400 font-body">New pharmacy? </span>
+          <a href="/signup" className="text-sm text-primary-500 hover:text-primary-600 font-semibold font-body cursor-pointer transition-colors">Create your account</a>
         </div>
       </div>
     </div>

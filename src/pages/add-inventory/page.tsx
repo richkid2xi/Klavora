@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import { categories as defaultCategories } from '@/mocks/drugs';
 import { dosageForms } from '@/mocks/medicineSuggestions';
@@ -40,6 +41,7 @@ function genId() {
 }
 
 export default function AddInventoryPage() {
+  const navigate = useNavigate();
   const { drugs, setDrugs } = useApp();
   const [allCategories, setAllCategories] = useState<string[]>(defaultCategories);
   const [form, setForm] = useState<DrugForm>(emptyForm);
@@ -50,6 +52,9 @@ export default function AddInventoryPage() {
   const [errors, setErrors] = useState<Partial<DrugForm>>({});
 
   const existingNames = drugs.map(d => d.name);
+  const existingMatches = mode === 'add' && form.name.trim().length > 2
+    ? drugs.filter(d => d.name.toLowerCase() === form.name.trim().toLowerCase())
+    : [];
 
   const setField = (key: keyof DrugForm, val: string | string[]) => {
     setForm(f => ({ ...f, [key]: val }));
@@ -59,7 +64,13 @@ export default function AddInventoryPage() {
   const validate = (): boolean => {
     const errs: Partial<DrugForm> = {};
     if (!form.name.trim()) errs.name = 'Medicine name is required';
-    else if (mode === 'add' && existingNames.includes(form.name.trim())) errs.name = 'This medicine already exists in inventory';
+    else if (mode === 'add') {
+      const isDuplicate = drugs.some(d => 
+        d.name.toLowerCase() === form.name.trim().toLowerCase() && 
+        (d.manufacturer || '').toLowerCase() === (form.manufacturer || '').trim().toLowerCase()
+      );
+      if (isDuplicate) errs.name = 'This medicine already exists in the system.';
+    }
     if (form.categories.length === 0) errs.categories = 'Select at least one category' as never;
     if (!form.unitPrice || isNaN(Number(form.unitPrice)) || Number(form.unitPrice) <= 0) errs.unitPrice = 'Enter a valid price';
     if (mode === 'add') {
@@ -203,6 +214,45 @@ export default function AddInventoryPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="p-5">
+            {existingMatches.length > 0 && (
+              <div className="mb-6 p-4 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-500/20 flex-shrink-0">
+                    <i className="ri-error-warning-line text-amber-600 dark:text-amber-400 text-lg"></i>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-heading font-600 text-amber-900 dark:text-amber-300 mb-1">
+                      This medicine name already exists
+                    </p>
+                    <p className="text-xs text-amber-800 dark:text-amber-400 mb-3 font-body">
+                      We found the following exact matches in the inventory. If you are adding the exact same brand and variant, please restock instead to avoid duplicates.
+                    </p>
+                    <div className="space-y-2 mb-3">
+                      {existingMatches.map(match => (
+                        <div key={match.id} className="p-3 bg-white dark:bg-black/20 rounded-lg border border-amber-100 dark:border-amber-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">{match.name}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 font-body mt-0.5">
+                              Brand: {match.manufacturer || 'N/A'} • Form: {match.dosageForm || 'N/A'} • Price: GH₵{match.unitPrice.toFixed(2)}
+                            </p>
+                          </div>
+                          <button 
+                            type="button"
+                            onClick={() => navigate('/restock', { state: { drugId: match.id } })}
+                            className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-medium cursor-pointer transition-colors whitespace-nowrap"
+                          >
+                            Yes, Restock This
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-amber-700 dark:text-amber-500 font-body">
+                      <span className="font-semibold">Different variant?</span> If the medicine you are adding has a different manufacturer or details, simply continue filling out the form below to add it as a new inventory item.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left column */}
               <div className="space-y-4">
@@ -216,9 +266,15 @@ export default function AddInventoryPage() {
                   <MedicineAutocomplete
                     value={form.name}
                     onChange={(val: string) => setField('name', val)}
-                    existingNames={mode === 'add' ? existingNames : existingNames.filter(n => n !== form.name)}
                   />
-                  {errors.name && <p className="text-xs text-red-500 font-body mt-1">{errors.name}</p>}
+                  {errors.name && (
+                    <div className="mt-1">
+                      <p className="text-xs text-red-500 font-body">{errors.name}</p>
+                      {errors.name.includes('already exists') && (
+                        <a href="/restock" className="text-xs text-primary-500 hover:text-primary-600 font-medium inline-block mt-1">Go to Restock &rarr;</a>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Categories */}

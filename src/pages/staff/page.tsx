@@ -33,11 +33,13 @@ export { timeAgo };
 export default function StaffPage() {
   const { user, transactions } = useApp();
   const [staff, setStaff] = useState<Staff[]>(initialStaff.filter(s => s.role === 'staff'));
-  const [showAdd, setShowAdd] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [newName, setNewName] = useState('');
+  const [newRole, setNewRole] = useState<'sales'|'restock'|'general'|'other'>('general');
   const [newPin, setNewPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
-  const [addError, setAddError] = useState('');
+  const [formError, setFormError] = useState('');
   const [removeId, setRemoveId] = useState<string | null>(null);
   const [selectedStaff, setSelectedStaff] = useState<StaffStats | null>(null);
 
@@ -75,27 +77,65 @@ export default function StaffPage() {
     return <div className="p-6 text-sm text-gray-400 font-body">Owner access only.</div>;
   }
 
-  const handleAdd = () => {
-    setAddError('');
-    if (!newName.trim()) { setAddError('Name is required.'); return; }
-    if (newPin.length !== 4) { setAddError('PIN must be exactly 4 digits.'); return; }
-    if (newPin !== confirmPin) { setAddError('PINs do not match.'); return; }
-    const initials = newName.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-    const color = COLORS[staff.length % COLORS.length];
-    const newMember: Staff = {
-      id: 'staff-' + Date.now(),
-      name: newName.trim(),
-      pin: newPin,
-      color,
-      initials,
-      lastActive: new Date().toISOString(),
-      role: 'staff',
-    };
-    setStaff(prev => [...prev, newMember]);
+  const handleSave = () => {
+    setFormError('');
+    if (!newName.trim()) { setFormError('Name is required.'); return; }
+    
+    // Validate PIN (optional on edit if not changing, required on add)
+    const isChangingPin = newPin.length > 0 || confirmPin.length > 0;
+    if (!editingId || isChangingPin) {
+      if (newPin.length !== 4) { setFormError('PIN must be exactly 4 digits.'); return; }
+      if (newPin !== confirmPin) { setFormError('PINs do not match.'); return; }
+    }
+
+    if (editingId) {
+      setStaff(prev => prev.map(s => {
+        if (s.id !== editingId) return s;
+        return {
+          ...s,
+          name: newName.trim(),
+          staffRole: newRole,
+          pin: isChangingPin ? newPin : s.pin,
+          initials: newName.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2),
+        };
+      }));
+    } else {
+      const initials = newName.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      const color = COLORS[staff.length % COLORS.length];
+      const newMember: Staff = {
+        id: 'staff-' + Date.now(),
+        name: newName.trim(),
+        pin: newPin,
+        color,
+        initials,
+        lastActive: new Date().toISOString(),
+        role: 'staff',
+        staffRole: newRole,
+      };
+      setStaff(prev => [...prev, newMember]);
+    }
+
+    setShowForm(false);
+  };
+
+  const openAddForm = () => {
+    setEditingId(null);
     setNewName('');
+    setNewRole('general');
     setNewPin('');
     setConfirmPin('');
-    setShowAdd(false);
+    setFormError('');
+    setShowForm(true);
+  };
+
+  const openEditForm = (member: Staff) => {
+    setEditingId(member.id);
+    setNewName(member.name);
+    setNewRole(member.staffRole || 'general');
+    setNewPin(''); // Reset PIN fields
+    setConfirmPin('');
+    setFormError('');
+    setShowForm(true);
   };
 
   const handleRemove = (id: string) => {
@@ -115,7 +155,7 @@ export default function StaffPage() {
           </p>
         </div>
         <button
-          onClick={() => setShowAdd(true)}
+          onClick={openAddForm}
           className="h-btn px-4 bg-primary-500 hover:bg-primary-600 text-white rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap"
         >
           <i className="ri-user-add-line mr-2"></i>Add Staff
@@ -177,6 +217,7 @@ export default function StaffPage() {
             stats={stats}
             timeAgo={timeAgo}
             onView={() => setSelectedStaff(stats)}
+            onEdit={() => openEditForm(stats.member)}
             onRemove={() => setRemoveId(stats.member.id)}
           />
         ))}
@@ -191,11 +232,13 @@ export default function StaffPage() {
         />
       )}
 
-      {/* Add Staff Modal */}
-      {showAdd && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 p-0 md:p-4" onClick={() => setShowAdd(false)}>
+      {/* Form Modal */}
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 p-0 md:p-4" onClick={() => setShowForm(false)}>
           <div className="w-full md:max-w-sm bg-surface-light dark:bg-surface-dark rounded-t-2xl md:rounded-card border border-border-light dark:border-border-dark p-6" onClick={e => e.stopPropagation()}>
-            <h2 className="text-base font-heading font-700 text-gray-900 dark:text-white mb-5">Add Staff Member</h2>
+            <h2 className="text-base font-heading font-700 text-gray-900 dark:text-white mb-5">
+              {editingId ? 'Edit Staff Member' : 'Add Staff Member'}
+            </h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Full Name</label>
@@ -208,7 +251,25 @@ export default function StaffPage() {
                 />
               </div>
               <div>
-                <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">4-Digit PIN</label>
+                <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Role / Responsibility</label>
+                <select
+                  value={newRole}
+                  onChange={e => setNewRole(e.target.value as any)}
+                  className="w-full h-btn px-3 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-sm font-body text-gray-900 dark:text-white focus:outline-none focus:border-primary-500 transition-colors cursor-pointer"
+                >
+                  <option value="general">General</option>
+                  <option value="sales">Sales</option>
+                  <option value="restock">Restock</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              {editingId && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-body mb-2">Leave PIN blank if you don't want to change it.</p>
+              )}
+              <div>
+                <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">
+                  {editingId ? 'New 4-Digit PIN' : '4-Digit PIN'}
+                </label>
                 <input
                   type="password"
                   maxLength={4}
@@ -229,16 +290,18 @@ export default function StaffPage() {
                   className="w-full h-btn px-3 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-sm font-mono text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-primary-500 transition-colors tracking-widest"
                 />
               </div>
-              {addError && (
+              {formError && (
                 <div className="flex items-center gap-2 text-danger-500 text-sm font-body bg-danger-50 dark:bg-danger-500/10 border border-danger-500/20 rounded-lg px-3 py-2">
                   <i className="ri-error-warning-line flex-shrink-0"></i>
-                  <span>{addError}</span>
+                  <span>{formError}</span>
                 </div>
               )}
             </div>
             <div className="flex gap-3 mt-5">
-              <button onClick={() => { setShowAdd(false); setAddError(''); }} className="flex-1 h-btn border border-border-light dark:border-border-dark text-gray-600 dark:text-gray-400 rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap">Cancel</button>
-              <button onClick={handleAdd} className="flex-1 h-btn bg-primary-500 hover:bg-primary-600 text-white rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap">Add Staff</button>
+              <button onClick={() => setShowForm(false)} className="flex-1 h-btn border border-border-light dark:border-border-dark text-gray-600 dark:text-gray-400 rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap">Cancel</button>
+              <button onClick={handleSave} className="flex-1 h-btn bg-primary-500 hover:bg-primary-600 text-white rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap">
+                {editingId ? 'Save Changes' : 'Add Staff'}
+              </button>
             </div>
           </div>
         </div>

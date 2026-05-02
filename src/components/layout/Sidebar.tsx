@@ -54,12 +54,17 @@ export default function Sidebar() {
             <i className="ri-medicine-bottle-line text-white text-base"></i>
           </div>
           {!sidebarCollapsed && (
-            <span className="font-heading font-700 text-base text-gray-900 dark:text-white tracking-tight">Klavora</span>
+            <div className="flex flex-col min-w-0">
+              <span className="font-heading font-700 text-base text-gray-900 dark:text-white tracking-tight leading-tight truncate">Klavora</span>
+              {user?.pharmacyName && (
+                <span className="text-[10px] text-gray-500 dark:text-gray-400 font-body truncate leading-tight mt-0.5">{user.pharmacyName}</span>
+              )}
+            </div>
           )}
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 py-3 overflow-y-auto">
+        <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden">
           {navItems.map(item => {
             const locked = isLocked(item);
             if (locked) {
