@@ -51,7 +51,7 @@ export default function AddInventoryPage() {
   const [success, setSuccess] = useState('');
   const [errors, setErrors] = useState<Partial<DrugForm>>({});
 
-  const existingNames = drugs.map(d => d.name);
+
   const existingMatches = mode === 'add' && form.name.trim().length > 2
     ? drugs.filter(d => d.name.toLowerCase() === form.name.trim().toLowerCase())
     : [];
