@@ -65,7 +65,7 @@ export default function Sidebar() {
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 py-3 overflow-y-auto scrollbar-hide">
+        <nav className={`flex-1 py-3 ${sidebarCollapsed ? 'overflow-visible' : 'overflow-y-auto scrollbar-hide'}`}>
           {navItems.map(item => {
             const locked = isLocked(item);
             if (locked) {
@@ -137,7 +137,7 @@ export default function Sidebar() {
         </nav>
 
         {/* Bottom section */}
-        <div className="border-t border-border-light dark:border-border-dark py-3 flex-shrink-0">
+        <div className="mt-auto border-t border-border-light dark:border-border-dark py-3 flex-shrink-0 bg-surface-light dark:bg-surface-dark z-10">
           {/* Subscription badge */}
           {!sidebarCollapsed && user?.role === 'owner' && (
             <div className="mx-2 mb-2 px-3 py-2 rounded-lg bg-bg-light dark:bg-bg-dark">
