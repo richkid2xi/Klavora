@@ -19,7 +19,6 @@ const allNavItems: NavItem[] = [
   { path: '/sell', label: 'Sell', icon: 'ri-shopping-bag-line' },
   { path: '/restock', label: 'Restock', icon: 'ri-add-box-line' },
   { path: '/add-inventory', label: 'Add Inventory', icon: 'ri-inbox-archive-line', ownerOnly: true },
-  { path: '/insights', label: 'Insights', icon: 'ri-bar-chart-2-line', premiumOnly: true },
   { path: '/audit-log', label: 'Audit Log', icon: 'ri-file-list-3-line', ownerOnly: true, premiumOnly: true },
   { path: '/sales-metrics', label: 'Sales Metrics', icon: 'ri-line-chart-line', ownerOnly: true },
   { path: '/staff', label: 'Staff', icon: 'ri-team-line', ownerOnly: true },
@@ -36,6 +35,8 @@ export default function Sidebar() {
     ? allNavItems
     : allNavItems.filter(item => !item.ownerOnly);
 
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -46,7 +47,7 @@ export default function Sidebar() {
   return (
     <>
       <aside
-        className={`fixed left-0 top-0 h-full z-40 flex flex-col bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark transition-all duration-200 ${sidebarCollapsed ? 'w-16' : 'w-sidebar'}`}
+        className={`fixed left-0 top-0 h-full z-40 flex flex-col bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark transition-all duration-200 overflow-x-hidden ${sidebarCollapsed ? 'w-16' : 'w-sidebar'}`}
       >
         {/* Logo */}
         <div className={`flex items-center h-16 border-b border-border-light dark:border-border-dark flex-shrink-0 ${sidebarCollapsed ? 'justify-center px-0' : 'px-5 gap-2.5'}`}>
@@ -54,7 +55,10 @@ export default function Sidebar() {
             <i className="ri-medicine-bottle-line text-white text-base"></i>
           </div>
           {!sidebarCollapsed && (
-            <span className="font-heading font-700 text-base text-gray-900 dark:text-white tracking-tight">Klavora</span>
+            <div className="flex flex-col min-w-0">
+              <span className="font-heading font-700 text-base text-gray-900 dark:text-white tracking-tight leading-tight">Klavora</span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400 font-body truncate leading-tight">{user?.pharmacyName}</span>
+            </div>
           )}
         </div>
 
@@ -182,7 +186,7 @@ export default function Sidebar() {
 
           {/* Logout */}
           <button
-            onClick={handleLogout}
+            onClick={() => setShowLogoutModal(true)}
             className={`flex items-center h-10 mx-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-danger-50 dark:hover:bg-danger-500/10 hover:text-danger-500 transition-all cursor-pointer
               ${sidebarCollapsed ? 'justify-center px-0 w-12' : 'px-3 gap-3 w-[calc(100%-16px)]'}`}
           >
@@ -209,6 +213,37 @@ export default function Sidebar() {
       {showHelp && <HelpSupportModal onClose={() => setShowHelp(false)} />}
       {upgradeFeature && <UpgradeModal featureName={upgradeFeature} onClose={() => setUpgradeFeature(null)} />}
       {showTour && <OnboardingTour onClose={() => setShowTour(false)} />}
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-surface-light dark:bg-surface-dark w-full max-w-sm rounded-card border border-border-light dark:border-border-dark shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-danger-50 dark:bg-danger-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="ri-logout-box-line text-2xl text-danger-500"></i>
+              </div>
+              <h3 className="text-xl font-heading font-700 text-gray-900 dark:text-white mb-2">Sign Out?</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-body mb-8">
+                Are you sure you want to sign out of Klavora? You will need your credentials to log back in.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowLogoutModal(false)}
+                  className="flex-1 h-btn bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 rounded-btn text-sm font-medium font-body transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex-1 h-btn bg-danger-500 hover:bg-danger-600 text-white rounded-btn text-sm font-medium font-body transition-colors cursor-pointer"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

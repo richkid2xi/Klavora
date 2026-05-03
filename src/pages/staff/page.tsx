@@ -32,14 +32,16 @@ export { timeAgo };
 
 export default function StaffPage() {
   const { user, transactions } = useApp();
-  const [staff, setStaff] = useState<Staff[]>(initialStaff.filter(s => s.role === 'staff'));
+  const [staff, setStaff] = useState<Staff[]>(initialStaff.filter(s => s.role !== 'owner'));
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
   const [newPin, setNewPin] = useState('');
+  const [newRole, setNewRole] = useState<'Admin' | 'Pharmacist' | 'Staff'>('Staff');
   const [confirmPin, setConfirmPin] = useState('');
   const [addError, setAddError] = useState('');
   const [removeId, setRemoveId] = useState<string | null>(null);
   const [selectedStaff, setSelectedStaff] = useState<StaffStats | null>(null);
+  const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
 
   const todayStr = new Date().toISOString().slice(0, 10);
 
@@ -89,13 +91,19 @@ export default function StaffPage() {
       color,
       initials,
       lastActive: new Date().toISOString(),
-      role: 'staff',
+      role: newRole,
     };
     setStaff(prev => [...prev, newMember]);
     setNewName('');
     setNewPin('');
     setConfirmPin('');
+    setNewRole('Staff');
     setShowAdd(false);
+  };
+
+  const handleUpdate = (updated: Staff) => {
+    setStaff(prev => prev.map(s => s.id === updated.id ? updated : s));
+    setEditingStaff(null);
   };
 
   const handleRemove = (id: string) => {
@@ -105,7 +113,7 @@ export default function StaffPage() {
   };
 
   return (
-    <div className="p-4 md:p-6 w-full max-w-7xl">
+    <div className="p-4 md:p-6 w-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -177,6 +185,7 @@ export default function StaffPage() {
             stats={stats}
             timeAgo={timeAgo}
             onView={() => setSelectedStaff(stats)}
+            onEdit={() => setEditingStaff(stats.member)}
             onRemove={() => setRemoveId(stats.member.id)}
           />
         ))}
@@ -229,6 +238,18 @@ export default function StaffPage() {
                   className="w-full h-btn px-3 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-sm font-mono text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-primary-500 transition-colors tracking-widest"
                 />
               </div>
+              <div>
+                <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Role</label>
+                <select
+                  value={newRole}
+                  onChange={e => setNewRole(e.target.value as any)}
+                  className="w-full h-btn px-3 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-sm font-body text-gray-900 dark:text-white focus:outline-none focus:border-primary-500 transition-colors cursor-pointer"
+                >
+                  <option value="Staff">Staff</option>
+                  <option value="Pharmacist">Pharmacist</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
               {addError && (
                 <div className="flex items-center gap-2 text-danger-500 text-sm font-body bg-danger-50 dark:bg-danger-500/10 border border-danger-500/20 rounded-lg px-3 py-2">
                   <i className="ri-error-warning-line flex-shrink-0"></i>
@@ -239,6 +260,55 @@ export default function StaffPage() {
             <div className="flex gap-3 mt-5">
               <button onClick={() => { setShowAdd(false); setAddError(''); }} className="flex-1 h-btn border border-border-light dark:border-border-dark text-gray-600 dark:text-gray-400 rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap">Cancel</button>
               <button onClick={handleAdd} className="flex-1 h-btn bg-primary-500 hover:bg-primary-600 text-white rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap">Add Staff</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Staff Modal */}
+      {editingStaff && (
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 p-0 md:p-4" onClick={() => setEditingStaff(null)}>
+          <div className="w-full md:max-w-sm bg-surface-light dark:bg-surface-dark rounded-t-2xl md:rounded-card border border-border-light dark:border-border-dark p-6" onClick={e => e.stopPropagation()}>
+            <h2 className="text-base font-heading font-700 text-gray-900 dark:text-white mb-5">Edit Staff Member</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Full Name</label>
+                <input
+                  type="text"
+                  value={editingStaff.name}
+                  onChange={e => setEditingStaff({ ...editingStaff, name: e.target.value })}
+                  className="w-full h-btn px-3 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-sm font-body text-gray-900 dark:text-white focus:outline-none focus:border-primary-500 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Role</label>
+                <select
+                  value={editingStaff.role}
+                  onChange={e => setEditingStaff({ ...editingStaff, role: e.target.value as any })}
+                  className="w-full h-btn px-3 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-sm font-body text-gray-900 dark:text-white focus:outline-none focus:border-primary-500 transition-colors cursor-pointer"
+                >
+                  <option value="Staff">Staff</option>
+                  <option value="Pharmacist">Pharmacist</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">New PIN (Optional)</label>
+                <input
+                  type="password"
+                  maxLength={4}
+                  placeholder="Leave blank to keep current"
+                  onChange={e => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                    if (val) setEditingStaff({ ...editingStaff, pin: val });
+                  }}
+                  className="w-full h-btn px-3 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-sm font-mono text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-primary-500 transition-colors tracking-widest"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-5">
+              <button onClick={() => setEditingStaff(null)} className="flex-1 h-btn border border-border-light dark:border-border-dark text-gray-600 dark:text-gray-400 rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap">Cancel</button>
+              <button onClick={() => handleUpdate(editingStaff)} className="flex-1 h-btn bg-primary-500 hover:bg-primary-600 text-white rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap">Save Changes</button>
             </div>
           </div>
         </div>

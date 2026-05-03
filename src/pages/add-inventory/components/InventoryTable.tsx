@@ -59,7 +59,7 @@ export default function InventoryTable({ drugs, onEdit }: InventoryTableProps) {
       {/* Table header */}
       <div className="p-4 border-b border-border-light dark:border-border-dark">
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1">
+          <div className="flex-1 md:min-w-[400px]">
             <MedicineAutocomplete
               value={search}
               onChange={handleSearch}

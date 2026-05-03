@@ -21,8 +21,10 @@ export default function SignInPage() {
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
   const [pinShake, setPinShake] = useState(false);
+  const [isLoggedInSuccess, setIsLoggedInSuccess] = useState(false);
+  const [loginMessage, setLoginMessage] = useState('');
 
-  const staffOnly = staffMembers.filter(s => s.role === 'staff');
+  const staffOnly = staffMembers.filter(s => s.role !== 'owner');
   const pharmacy = pharmacies[0];
 
   const handleOwnerLogin = (e: React.FormEvent) => {
@@ -38,7 +40,9 @@ export default function SignInPage() {
         pharmacyName: pharmacy.name,
       };
       login(authUser);
-      navigate('/dashboard');
+      setLoginMessage('Owner Login Successful!');
+      setIsLoggedInSuccess(true);
+      setTimeout(() => navigate('/dashboard'), 2000);
     } else {
       setError('Invalid email or password. Try the demo account.');
     }
@@ -62,12 +66,14 @@ export default function SignInPage() {
             const authUser: AuthUser = {
               id: selectedStaff.id,
               name: selectedStaff.name,
-              role: 'staff',
+              role: 'Staff',
               pharmacyId: pharmacy.id,
               pharmacyName: pharmacy.name,
             };
             login(authUser);
-            navigate('/sell');
+            setLoginMessage(`Welcome, ${selectedStaff.name}!`);
+            setIsLoggedInSuccess(true);
+            setTimeout(() => navigate('/sell'), 1500);
           } else {
             setPinShake(true);
             setPinError('Incorrect PIN. Try again.');
@@ -87,6 +93,28 @@ export default function SignInPage() {
     setPin('');
     setPinError('');
   };
+
+  if (isLoggedInSuccess) {
+    return (
+      <div className="min-h-screen bg-bg-light dark:bg-bg-dark flex items-center justify-center p-4 transition-colors duration-200">
+        <div className="w-full max-w-md text-center animate-in fade-in zoom-in duration-300">
+          <div className="w-20 h-20 rounded-full bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center mx-auto mb-6 border-2 border-amber-400">
+            <i className="ri-check-line text-amber-500 text-4xl animate-in zoom-in duration-500 delay-150"></i>
+          </div>
+          <h1 className="text-2xl font-heading font-700 text-gray-900 dark:text-white mb-2">
+            {loginMessage}
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-body mb-6">
+            Login successful! Redirecting you to the {loginMessage.includes('Owner') ? 'dashboard' : 'sell terminal'}...
+          </p>
+          <div className="flex items-center justify-center gap-2 text-amber-500">
+            <i className="ri-loader-4-line animate-spin text-xl"></i>
+            <span className="text-sm font-medium font-body">Preparing your workspace</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-bg-light dark:bg-bg-dark flex items-center justify-center p-4 transition-colors duration-200">
@@ -126,11 +154,6 @@ export default function SignInPage() {
           </button>
         </div>
 
-        {/* New pharmacy link */}
-        <div className="text-center mb-4">
-          <span className="text-xs text-gray-400 dark:text-gray-600 font-body">New pharmacy? </span>
-          <a href="/signup" className="text-xs text-primary-500 hover:text-primary-600 font-body font-medium cursor-pointer transition-colors">Create your account →</a>
-        </div>
 
         {/* Card */}
         <div className="bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark p-6">
@@ -179,6 +202,26 @@ export default function SignInPage() {
               >
                 Sign In
               </button>
+
+              <div className="flex flex-col gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => navigate('/forgot-password')}
+                  className="text-xs text-gray-500 hover:text-primary-500 font-body transition-colors cursor-pointer"
+                >
+                  Forgot password?
+                </button>
+                <div className="text-center">
+                  <span className="text-xs text-gray-400 dark:text-gray-600 font-body">New pharmacy? </span>
+                  <button 
+                    onClick={() => navigate('/signup')} 
+                    className="text-xs text-primary-500 hover:text-primary-600 font-body font-medium cursor-pointer transition-colors"
+                  >
+                    Create your account →
+                  </button>
+                </div>
+              </div>
+
               <button
                 type="button"
                 onClick={handleDemoFill}

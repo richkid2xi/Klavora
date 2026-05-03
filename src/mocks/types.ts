@@ -41,7 +41,7 @@ export interface Transaction {
 export interface AuthUser {
   id: string;
   name: string;
-  role: 'owner' | 'staff';
+  role: 'owner' | 'Admin' | 'Pharmacist' | 'Staff';
   pharmacyId: string;
   pharmacyName: string;
 }
@@ -53,7 +53,7 @@ export interface Staff {
   color: string;
   initials: string;
   lastActive: string;
-  role: 'owner' | 'staff';
+  role: 'Admin' | 'Pharmacist' | 'Staff' | 'owner';
 }
 
 export interface Pharmacy {

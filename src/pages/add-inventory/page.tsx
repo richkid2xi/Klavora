@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import { categories as defaultCategories } from '@/mocks/drugs';
 import { dosageForms } from '@/mocks/medicineSuggestions';
@@ -40,6 +41,7 @@ function genId() {
 }
 
 export default function AddInventoryPage() {
+  const navigate = useNavigate();
   const { drugs, setDrugs } = useApp();
   const [allCategories, setAllCategories] = useState<string[]>(defaultCategories);
   const [form, setForm] = useState<DrugForm>(emptyForm);
@@ -59,7 +61,14 @@ export default function AddInventoryPage() {
   const validate = (): boolean => {
     const errs: Partial<DrugForm> = {};
     if (!form.name.trim()) errs.name = 'Medicine name is required';
-    else if (mode === 'add' && existingNames.includes(form.name.trim())) errs.name = 'This medicine already exists in inventory';
+    else if (mode === 'add') {
+      const existing = drugs.find(d => d.name.toLowerCase() === form.name.trim().toLowerCase());
+      if (existing) {
+        // Redirect to restock with this drug preselected
+        navigate('/restock', { state: { drugId: existing.id } });
+        return false;
+      }
+    }
     if (form.categories.length === 0) errs.categories = 'Select at least one category' as never;
     if (!form.unitPrice || isNaN(Number(form.unitPrice)) || Number(form.unitPrice) <= 0) errs.unitPrice = 'Enter a valid price';
     if (mode === 'add') {

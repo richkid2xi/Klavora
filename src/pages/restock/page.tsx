@@ -140,197 +140,222 @@ export default function RestockPage() {
     );
   }
 
-  if (step === 'mode' && selectedDrug) {
-    return (
-      <div className="p-4 md:p-6 w-full max-w-2xl">
-        <button onClick={() => setStep('select')} className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-5 cursor-pointer transition-colors">
-          <i className="ri-arrow-left-line"></i><span className="font-body">Back</span>
-        </button>
-        <h1 className="text-xl font-heading font-700 text-gray-900 dark:text-white mb-1">{selectedDrug.name}</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 font-body mb-6">Is this a new delivery with a different expiry date?</p>
-        <div className="space-y-3">
-          <button
-            onClick={() => { setIsNewBatch(true); setStep('form'); }}
-            className="w-full p-4 text-left bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark hover:border-success-500 transition-all cursor-pointer group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-success-50 dark:bg-success-500/10 flex-shrink-0">
-                <i className="ri-add-circle-line text-success-500 text-lg"></i>
-              </div>
-              <div>
-                <p className="text-sm font-heading font-600 text-gray-900 dark:text-white group-hover:text-success-500 transition-colors">Yes — New Batch</p>
-                <p className="text-xs text-gray-400 dark:text-gray-600 font-body">New delivery with different expiry date</p>
-              </div>
-            </div>
-          </button>
-          <button
-            onClick={() => { setIsNewBatch(false); setStep('form'); }}
-            className="w-full p-4 text-left bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark hover:border-primary-500 transition-all cursor-pointer group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-500/10 flex-shrink-0">
-                <i className="ri-add-line text-primary-500 text-lg"></i>
-              </div>
-              <div>
-                <p className="text-sm font-heading font-600 text-gray-900 dark:text-white group-hover:text-primary-500 transition-colors">No — Add to Existing Batch</p>
-                <p className="text-xs text-gray-400 dark:text-gray-600 font-body">Top up an existing batch</p>
-              </div>
-            </div>
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (step === 'form' && selectedDrug) {
-    const canProceed = isNewBatch
-      ? quantity > 0 && newExpiry !== ''
-      : quantity > 0 && selectedBatchId !== '';
+  if (selectedDrug && step !== 'done') {
+    const totalStock = selectedDrug.batches.reduce((s, b) => s + b.quantity, 0);
 
     return (
-      <div className="p-4 md:p-6 w-full max-w-2xl">
-        <button onClick={() => setStep('mode')} className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-5 cursor-pointer transition-colors">
-          <i className="ri-arrow-left-line"></i><span className="font-body">Back</span>
+      <div className="p-4 md:p-6 w-full">
+        <button onClick={handleReset} className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-6 cursor-pointer transition-colors">
+          <i className="ri-arrow-left-line"></i><span className="font-body">Change Medicine</span>
         </button>
-        <h1 className="text-xl font-heading font-700 text-gray-900 dark:text-white mb-5">
-          {isNewBatch ? 'New Batch Details' : 'Add to Existing Batch'}
-        </h1>
 
-        <div className="space-y-4">
-          {!isNewBatch && (
-            <div>
-              <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Select Batch</label>
-              <div className="space-y-2">
-                {selectedDrug.batches.map(b => (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          {/* Main Content Area */}
+          <div className="lg:col-span-2">
+            {step === 'mode' && (
+              <div className="bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark p-6">
+                <h2 className="text-xl font-heading font-700 text-gray-900 dark:text-white mb-1">Restock Mode</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-body mb-6">Is this a new delivery with a different expiry date?</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <button
-                    key={b.id}
-                    onClick={() => setSelectedBatchId(b.id)}
-                    className={`w-full text-left p-3 rounded-lg border transition-all cursor-pointer
-                      ${selectedBatchId === b.id ? 'border-primary-500 bg-primary-50 dark:bg-primary-500/10' : 'border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark hover:border-primary-500'}`}
+                    onClick={() => { setIsNewBatch(true); setStep('form'); }}
+                    className="p-4 text-left bg-bg-light dark:bg-bg-dark rounded-xl border border-border-light dark:border-border-dark hover:border-success-500 transition-all cursor-pointer group"
                   >
-                    <div className="flex justify-between">
-                      <span className="text-xs font-mono text-gray-500 dark:text-gray-400">{b.id}</span>
-                      <span className="text-xs font-mono text-gray-900 dark:text-white">{b.quantity} units</span>
+                    <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-success-50 dark:bg-success-500/10 mb-3">
+                      <i className="ri-add-circle-line text-success-500 text-lg"></i>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 font-body mt-0.5">Exp <span className="font-mono">{b.expiry}</span> · {b.supplier}</p>
+                    <p className="text-sm font-heading font-600 text-gray-900 dark:text-white group-hover:text-success-500 transition-colors">New Batch</p>
+                    <p className="text-[11px] text-gray-400 dark:text-gray-600 font-body mt-1">Different expiry date or supplier</p>
                   </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {isNewBatch && (
-            <>
-              <div>
-                <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Expiry Date</label>
-                <input
-                  type="date"
-                  value={newExpiry}
-                  onChange={e => setNewExpiry(e.target.value)}
-                  className="w-full h-btn px-3 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-sm font-mono text-gray-900 dark:text-white focus:outline-none focus:border-primary-500 transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Supplier (optional)</label>
-                <input
-                  type="text"
-                  value={newSupplier}
-                  onChange={e => setNewSupplier(e.target.value)}
-                  placeholder="Supplier name"
-                  className="w-full h-btn px-3 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-sm font-body text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-primary-500 transition-colors"
-                />
-              </div>
-            </>
-          )}
-
-          <div>
-            <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Quantity to Add</label>
-            <div className="flex items-center gap-3">
-              <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-11 h-11 rounded-lg border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 text-xl font-mono transition-colors cursor-pointer flex items-center justify-center">-</button>
-              <input
-                type="number"
-                min={1}
-                value={quantity}
-                onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                className="flex-1 h-11 text-center text-2xl font-mono font-600 text-gray-900 dark:text-white bg-bg-light dark:bg-bg-dark border border-border-light dark:border-border-dark rounded-lg focus:outline-none focus:border-primary-500"
-              />
-              <button onClick={() => setQuantity(q => q + 1)} className="w-11 h-11 rounded-lg border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 text-xl font-mono transition-colors cursor-pointer flex items-center justify-center">+</button>
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={() => setStep('confirm')}
-          disabled={!canProceed}
-          className="w-full h-btn mt-6 bg-success-500 hover:bg-success-600 disabled:opacity-40 text-white rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap"
-        >
-          Review Restock
-        </button>
-      </div>
-    );
-  }
-
-  if (step === 'confirm' && selectedDrug) {
-    const existingBatch = !isNewBatch ? selectedDrug.batches.find(b => b.id === selectedBatchId) : null;
-    return (
-      <div className="p-4 md:p-6 w-full max-w-2xl">
-        <button onClick={() => setStep('form')} className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-5 cursor-pointer transition-colors">
-          <i className="ri-arrow-left-line"></i><span className="font-body">Back</span>
-        </button>
-        <h1 className="text-xl font-heading font-700 text-gray-900 dark:text-white mb-5">Confirm Restock</h1>
-
-        <div className="bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark p-5 mb-4 space-y-3">
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-500 dark:text-gray-400 font-body">Drug</span>
-            <span className="text-sm font-heading font-600 text-gray-900 dark:text-white text-right max-w-[60%]">{selectedDrug.name}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-500 dark:text-gray-400 font-body">Type</span>
-            <span className="text-sm font-body text-gray-700 dark:text-gray-300">{isNewBatch ? 'New Batch' : 'Add to Existing'}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-500 dark:text-gray-400 font-body">Quantity</span>
-            <span className="text-sm font-mono font-600 text-success-500">+{quantity} units</span>
-          </div>
-          {isNewBatch && (
-            <>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-500 dark:text-gray-400 font-body">Expiry</span>
-                <span className="text-sm font-mono text-gray-700 dark:text-gray-300">{newExpiry}</span>
-              </div>
-              {newSupplier && (
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500 dark:text-gray-400 font-body">Supplier</span>
-                  <span className="text-sm font-body text-gray-700 dark:text-gray-300">{newSupplier}</span>
+                  <button
+                    onClick={() => { setIsNewBatch(false); setStep('form'); }}
+                    className="p-4 text-left bg-bg-light dark:bg-bg-dark rounded-xl border border-border-light dark:border-border-dark hover:border-primary-500 transition-all cursor-pointer group"
+                  >
+                    <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-500/10 mb-3">
+                      <i className="ri-add-line text-primary-500 text-lg"></i>
+                    </div>
+                    <p className="text-sm font-heading font-600 text-gray-900 dark:text-white group-hover:text-primary-500 transition-colors">Existing Batch</p>
+                    <p className="text-[11px] text-gray-400 dark:text-gray-600 font-body mt-1">Top up current stock levels</p>
+                  </button>
                 </div>
-              )}
-            </>
-          )}
-          {existingBatch && (
-            <>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-500 dark:text-gray-400 font-body">Batch</span>
-                <span className="text-sm font-mono text-gray-700 dark:text-gray-300">{existingBatch.id}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-500 dark:text-gray-400 font-body">New Total</span>
-                <span className="text-sm font-mono font-600 text-success-500">{existingBatch.quantity + quantity} units</span>
-              </div>
-            </>
-          )}
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-500 dark:text-gray-400 font-body">Staff</span>
-            <span className="text-sm font-body text-gray-700 dark:text-gray-300">{user?.name}</span>
-          </div>
-        </div>
+            )}
 
-        <div className="flex gap-3">
-          <button onClick={() => setStep('form')} className="flex-1 h-btn border border-border-light dark:border-border-dark text-gray-600 dark:text-gray-400 hover:border-gray-400 rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap">
-            Back
-          </button>
-          <button onClick={handleConfirm} className="flex-1 h-btn bg-success-500 hover:bg-success-600 text-white rounded-btn text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap">
-            Confirm Restock
-          </button>
+            {step === 'form' && (
+              <div className="bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-heading font-700 text-gray-900 dark:text-white">
+                    {isNewBatch ? 'New Batch Details' : 'Batch Selection & Quantity'}
+                  </h2>
+                  <button onClick={() => setStep('mode')} className="text-xs text-primary-500 hover:underline">Change mode</button>
+                </div>
+
+                <div className="space-y-5">
+                  {!isNewBatch && (
+                    <div>
+                      <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2 font-body">Select Batch to Restock</label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {selectedDrug.batches.map(b => (
+                          <button
+                            key={b.id}
+                            onClick={() => setSelectedBatchId(b.id)}
+                            className={`text-left p-3 rounded-lg border transition-all cursor-pointer
+                              ${selectedBatchId === b.id ? 'border-primary-500 bg-primary-50 dark:bg-primary-500/10 shadow-sm' : 'border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark hover:border-primary-500'}`}
+                          >
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="text-[10px] font-mono text-gray-400 uppercase">Batch #{b.id.slice(-4)}</span>
+                              <span className="text-xs font-mono font-600 text-gray-900 dark:text-white">{b.quantity} in stock</span>
+                            </div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 font-body mt-0.5">Exp <span className="font-mono">{b.expiry}</span></p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {isNewBatch && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Expiry Date</label>
+                        <input
+                          type="date"
+                          value={newExpiry}
+                          onChange={e => setNewExpiry(e.target.value)}
+                          className="w-full h-btn px-3 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-sm font-mono text-gray-900 dark:text-white focus:outline-none focus:border-primary-500 transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Supplier</label>
+                        <input
+                          type="text"
+                          value={newSupplier}
+                          onChange={e => setNewSupplier(e.target.value)}
+                          placeholder="e.g. PharmaCo Ghana"
+                          className="w-full h-btn px-3 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-sm font-body text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-primary-500 transition-colors"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="pt-2">
+                    <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2 font-body">Quantity to Add</label>
+                    <div className="flex items-center gap-4 max-w-xs">
+                      <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-12 h-12 rounded-xl border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 text-xl font-mono transition-colors flex items-center justify-center">-</button>
+                      <input
+                        type="number"
+                        min={1}
+                        value={quantity}
+                        onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                        className="flex-1 h-12 text-center text-2xl font-mono font-700 text-gray-900 dark:text-white bg-bg-light dark:bg-bg-dark border border-border-light dark:border-border-dark rounded-xl focus:outline-none focus:border-primary-500"
+                      />
+                      <button onClick={() => setQuantity(q => q + 1)} className="w-12 h-12 rounded-xl border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 text-xl font-mono transition-colors flex items-center justify-center">+</button>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setStep('confirm')}
+                  disabled={isNewBatch ? (!newExpiry || quantity < 1) : (!selectedBatchId || quantity < 1)}
+                  className="w-full h-12 mt-8 bg-success-500 hover:bg-success-600 disabled:opacity-40 text-white rounded-xl text-sm font-medium font-body transition-colors flex items-center justify-center gap-2"
+                >
+                  Review Restock <i className="ri-arrow-right-line"></i>
+                </button>
+              </div>
+            )}
+
+            {step === 'confirm' && (
+              <div className="bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark p-6">
+                <h2 className="text-xl font-heading font-700 text-gray-900 dark:text-white mb-6">Confirm Restock</h2>
+                
+                <div className="space-y-4 mb-8">
+                  <div className="flex justify-between py-2 border-b border-border-light dark:border-border-dark">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Restock Type</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">{isNewBatch ? 'New Batch' : 'Existing Batch'}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-border-light dark:border-border-dark">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Added Quantity</span>
+                    <span className="text-sm font-mono font-700 text-success-500">+{quantity} units</span>
+                  </div>
+                  {isNewBatch ? (
+                    <>
+                      <div className="flex justify-between py-2 border-b border-border-light dark:border-border-dark">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Expiry Date</span>
+                        <span className="text-sm font-mono text-gray-900 dark:text-white">{newExpiry}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-border-light dark:border-border-dark">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Supplier</span>
+                        <span className="text-sm text-gray-900 dark:text-white">{newSupplier || 'Unknown'}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between py-2 border-b border-border-light dark:border-border-dark">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Selected Batch</span>
+                      <span className="text-sm font-mono text-gray-900 dark:text-white">#{selectedBatchId.slice(-6)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between py-2">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">New Total Stock</span>
+                    <span className="text-sm font-mono font-700 text-primary-500">{totalStock + quantity} units</span>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button onClick={() => setStep('form')} className="flex-1 h-11 border border-border-light dark:border-border-dark text-gray-600 dark:text-gray-400 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">Back</button>
+                  <button onClick={handleConfirm} className="flex-1 h-11 bg-success-500 hover:bg-success-600 text-white rounded-lg text-sm font-medium transition-colors">Confirm & Complete</button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sticky Drug Info Panel */}
+          <div className="hidden lg:block sticky top-6">
+            <div className="bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark overflow-hidden">
+              <div className="p-5 border-b border-border-light dark:border-border-dark bg-gray-50/50 dark:bg-white/[0.02]">
+                <p className="text-[10px] font-body uppercase tracking-widest text-gray-400 dark:text-gray-600 mb-1">Selected Medicine</p>
+                <h3 className="text-lg font-heading font-700 text-gray-900 dark:text-white leading-tight">{selectedDrug.name}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{selectedDrug.category}</p>
+              </div>
+              <div className="p-5 space-y-5">
+                <div>
+                  <p className="text-[10px] font-body uppercase tracking-widest text-gray-400 dark:text-gray-600 mb-2">Inventory Summary</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Total in Stock</span>
+                    <span className="text-base font-mono font-700 text-gray-900 dark:text-white">{totalStock}</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Active Batches</span>
+                    <span className="text-sm font-mono text-gray-900 dark:text-white">{selectedDrug.batches.filter(b => b.quantity > 0).length}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-[10px] font-body uppercase tracking-widest text-gray-400 dark:text-gray-600 mb-2">Current Batches</p>
+                  <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                    {selectedDrug.batches.map(b => (
+                      <div key={b.id} className="p-2.5 rounded-lg bg-bg-light dark:bg-bg-dark border border-border-light dark:border-border-dark">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] font-mono text-gray-400">#{b.id.slice(-6)}</span>
+                          <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${b.quantity <= 10 ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-500' : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500'}`}>
+                            {b.quantity}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">Expires: <span className="font-mono">{b.expiry}</span></p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-4 rounded-xl bg-primary-50 dark:bg-primary-500/10 border border-primary-500/20">
+              <div className="flex gap-3">
+                <i className="ri-information-line text-primary-500 text-lg"></i>
+                <p className="text-[11px] text-primary-700 dark:text-primary-400 leading-normal font-body">
+                  Make sure you are restocking the correct medicine. Check the manufacturer and dosage form in the inventory list if unsure.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -1,28 +1,87 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+:root {
+  --bg-light: #f8fafc;
+  --bg-dark: #0d1117;
+  --text-light: #111827;
+  --text-dark: #ffffff;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+}
 
 @layer base {
   body {
-    @apply bg-bg-light dark:bg-bg-dark text-gray-900 dark:text-white font-body antialiased;
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .dark body {
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+  }
+
+  /* Custom Scrollbar Styles */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--gray-300);
+    border-radius: 9999px;
+    transition: background-color 0.2s;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--gray-400);
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background-color: var(--gray-700);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--gray-600);
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300) transparent;
+  }
+
+  .dark * {
+    scrollbar-color: var(--gray-700) transparent;
   }
 }
 
-@layer utilities {
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .tour-highlight {
-    position: relative;
-    z-index: 65;
-    background: white !important;
-    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.3), 0 0 0 9999px rgba(0, 0, 0, 0.5);
-  }
-  .dark .tour-highlight {
-    background: #1e293b !important;
+@layer components {
+  /* Print logic - keeps only the receipt visible */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #printable-receipt, #printable-receipt * {
+      visibility: visible;
+    }
+    #printable-receipt {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
   }
 }

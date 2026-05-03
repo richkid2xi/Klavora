@@ -398,17 +398,22 @@ export default function SellPage() {
       <div className="p-4 md:p-6 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div>
-            <div className="bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark p-6 mb-4">
-              <div className="text-center mb-5">
+            <div id="printable-receipt" className="bg-surface-light dark:bg-surface-dark rounded-card border border-border-light dark:border-border-dark p-6 mb-4">
+              {/* Print-only header */}
+              <div className="hidden print:block text-center mb-6 border-b border-dashed border-gray-300 pb-4">
+                <h2 className="text-xl font-heading font-700 text-black uppercase tracking-tight">{user?.pharmacyName}</h2>
+                <p className="text-xs text-gray-600 font-body mt-1">Official Sales Receipt</p>
+              </div>
+
+              <div className="text-center mb-5 print:hidden">
                 <div className="w-14 h-14 flex items-center justify-center mx-auto mb-3 rounded-full bg-success-50 dark:bg-success-500/10">
                   <i className="ri-check-line text-success-500 text-2xl"></i>
                 </div>
                 <h2 className="text-base font-heading font-700 text-gray-900 dark:text-white">Sale Complete</h2>
                 <p className="text-xs text-gray-400 dark:text-gray-600 font-body mt-1">Transaction recorded successfully</p>
               </div>
-              <div className="border-t border-dashed border-border-light dark:border-border-dark pt-4 space-y-2.5">
+              <div className="border-t border-dashed border-border-light dark:border-border-dark pt-4 space-y-2.5 print:border-gray-300">
                 {[
-                  { label: 'Pharmacy', value: user?.pharmacyName, mono: false },
                   { label: 'Ref', value: receiptRef, mono: true },
                   { label: 'Date', value: new Date().toLocaleString(), mono: true },
                   { label: 'Drug', value: selectedDrug.name, mono: false },
@@ -421,10 +426,16 @@ export default function SellPage() {
                   { label: 'Staff', value: user?.name, mono: false },
                 ].map(row => (
                   <div key={row.label} className="flex justify-between">
-                    <span className="text-xs text-gray-400 dark:text-gray-600 font-body uppercase tracking-widest">{row.label}</span>
-                    <span className={`text-xs ${row.mono ? 'font-mono' : 'font-body'} text-gray-700 dark:text-gray-300 text-right max-w-[60%]`}>{row.value}</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-600 font-body uppercase tracking-widest print:text-gray-500">{row.label}</span>
+                    <span className={`text-xs ${row.mono ? 'font-mono' : 'font-body'} text-gray-700 dark:text-gray-300 text-right max-w-[60%] print:text-black`}>{row.value}</span>
                   </div>
                 ))}
+              </div>
+
+              {/* Print-only footer */}
+              <div className="hidden print:block text-center mt-8 pt-4 border-t border-dashed border-gray-300">
+                <p className="text-[10px] text-gray-500 font-body">Thank you for your patronage!</p>
+                <p className="text-[9px] text-gray-400 font-mono mt-1">Powered by Klavora</p>
               </div>
             </div>
             <div className="flex gap-3">

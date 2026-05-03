@@ -13,6 +13,7 @@ import StaffPage from '@/pages/staff/page';
 import SettingsPage from '@/pages/settings/page';
 import SignInPage from '@/pages/signin/page';
 import SignUpPage from '@/pages/signup/page';
+import ForgotPasswordPage from '@/pages/forgot-password/page';
 import AuditLogPage from '@/pages/audit-log/page';
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
           {/* Public Routes */}
           <Route path="/" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           {/* Protected Routes wrapped in AppShell */}
           <Route element={<AppShell />}>
@@ -31,7 +33,6 @@ export default function App() {
             <Route path="/add-inventory" element={<AddInventoryPage />} />
             <Route path="/sell" element={<SellPage />} />
             <Route path="/restock" element={<RestockPage />} />
-            <Route path="/insights" element={<SalesMetricsPage />} />
             <Route path="/sales-metrics" element={<SalesMetricsPage />} />
             <Route path="/staff" element={<StaffPage />} />
             <Route path="/settings" element={<SettingsPage />} />

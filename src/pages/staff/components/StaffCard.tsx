@@ -4,10 +4,11 @@ interface Props {
   stats: StaffStats;
   timeAgo: (ts: string) => string;
   onView: () => void;
+  onEdit: () => void;
   onRemove: () => void;
 }
 
-export default function StaffCard({ stats, timeAgo, onView, onRemove }: Props) {
+export default function StaffCard({ stats, timeAgo, onView, onEdit, onRemove }: Props) {
   const { member, totalSalesToday, totalUnitsToday, totalUnitsAllTime, recentTransactions, lastActive } = stats;
 
   const lastTxn = recentTransactions[0];
@@ -31,17 +32,30 @@ export default function StaffCard({ stats, timeAgo, onView, onRemove }: Props) {
           </div>
           <div className="min-w-0">
             <p className="text-sm font-heading font-600 text-gray-900 dark:text-white truncate">{member.name}</p>
-            <p className="text-xs text-gray-400 dark:text-gray-600 font-body">
-              Last active <span className="font-mono">{timeAgo(lastActive)}</span>
-            </p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full border ${member.role === 'Admin' ? 'border-amber-500/20 bg-amber-500/10 text-amber-500' : member.role === 'Pharmacist' ? 'border-primary-500/20 bg-primary-500/10 text-primary-500' : 'border-gray-500/20 bg-gray-500/10 text-gray-500'}`}>
+                {member.role}
+              </span>
+              <p className="text-[10px] text-gray-400 dark:text-gray-600 font-body">
+                · {timeAgo(lastActive)}
+              </p>
+            </div>
           </div>
         </div>
-        <button
-          onClick={onRemove}
-          className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 dark:text-gray-700 hover:text-danger-500 hover:bg-danger-50 dark:hover:bg-danger-500/10 transition-colors cursor-pointer flex-shrink-0"
-        >
-          <i className="ri-delete-bin-line text-sm"></i>
-        </button>
+        <div className="flex gap-1 flex-shrink-0">
+          <button
+            onClick={onEdit}
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 dark:text-gray-700 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-colors cursor-pointer"
+          >
+            <i className="ri-edit-line text-sm"></i>
+          </button>
+          <button
+            onClick={onRemove}
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 dark:text-gray-700 hover:text-danger-500 hover:bg-danger-50 dark:hover:bg-danger-500/10 transition-colors cursor-pointer"
+          >
+            <i className="ri-delete-bin-line text-sm"></i>
+          </button>
+        </div>
       </div>
 
       {/* Stats row */}

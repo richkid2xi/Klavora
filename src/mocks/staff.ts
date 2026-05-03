@@ -8,7 +8,7 @@ export const staffMembers: Staff[] = [
     color: '#10B981',
     initials: 'AO',
     lastActive: '2026-04-12T08:45:00Z',
-    role: 'staff',
+    role: 'Staff',
   },
   {
     id: 'staff-002',
@@ -17,7 +17,7 @@ export const staffMembers: Staff[] = [
     color: '#0EA5E9',
     initials: 'KM',
     lastActive: '2026-04-12T07:30:00Z',
-    role: 'staff',
+    role: 'Staff',
   },
   {
     id: 'staff-003',
@@ -26,7 +26,7 @@ export const staffMembers: Staff[] = [
     color: '#8B5CF6',
     initials: 'AA',
     lastActive: '2026-04-11T16:20:00Z',
-    role: 'staff',
+    role: 'Staff',
   },
   {
     id: 'staff-004',
@@ -35,7 +35,7 @@ export const staffMembers: Staff[] = [
     color: '#F59E0B',
     initials: 'KB',
     lastActive: '2026-04-11T14:10:00Z',
-    role: 'staff',
+    role: 'Staff',
   },
   {
     id: 'staff-005',
@@ -44,7 +44,7 @@ export const staffMembers: Staff[] = [
     color: '#EF4444',
     initials: 'ED',
     lastActive: '2026-04-10T11:55:00Z',
-    role: 'staff',
+    role: 'Staff',
   },
   {
     id: 'owner-001',

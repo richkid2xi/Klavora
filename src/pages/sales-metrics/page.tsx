@@ -26,7 +26,6 @@ function getDateRange(period: Period): { start: Date; end: Date } {
 }
 
 
-
 interface DailyStat {
   label: string;
   date: string;

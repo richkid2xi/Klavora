@@ -51,7 +51,7 @@ export default function SignUpPage() {
 
   // Step 2 — Owner Account
   const [ownerName, setOwnerName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
@@ -77,7 +77,7 @@ export default function SignUpPage() {
 
   const validateStep2 = () => {
     if (!ownerName.trim()) return 'Owner name is required.';
-    if (!phone.trim()) return 'Phone number is required.';
+    if (!email.trim() || !email.includes('@')) return 'A valid email address is required.';
     if (password.length < 6) return 'Password must be at least 6 characters.';
     if (password !== confirmPassword) return 'Passwords do not match.';
     return '';
@@ -279,15 +279,15 @@ export default function SignUpPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Phone Number</label>
+                  <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Email Address</label>
                   <input
-                    type="tel"
-                    value={phone}
-                    onChange={e => setPhone(e.target.value)}
-                    placeholder="+233 XX XXX XXXX"
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="owner@example.com"
                     className="w-full h-btn px-3 rounded-btn border border-border-light dark:border-border-dark bg-bg-light dark:bg-bg-dark text-sm font-body text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-amber-500 transition-colors"
                   />
-                  <p className="text-xs text-gray-400 dark:text-gray-600 font-body mt-1">Your phone number is your login.</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-600 font-body mt-1">Your email will be used for login.</p>
                 </div>
                 <div>
                   <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Password</label>
