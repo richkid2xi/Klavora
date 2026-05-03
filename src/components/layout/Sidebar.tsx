@@ -65,7 +65,7 @@ export default function Sidebar() {
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 py-3">
+        <nav className="flex-1 py-3 overflow-y-auto scrollbar-hide">
           {navItems.map(item => {
             const locked = isLocked(item);
             if (locked) {
