@@ -19,7 +19,6 @@ const allNavItems: NavItem[] = [
   { path: '/sell', label: 'Sell', icon: 'ri-shopping-bag-line' },
   { path: '/restock', label: 'Restock', icon: 'ri-add-box-line' },
   { path: '/add-inventory', label: 'Add Inventory', icon: 'ri-inbox-archive-line', ownerOnly: true },
-  { path: '/insights', label: 'Insights', icon: 'ri-bar-chart-2-line', premiumOnly: true },
   { path: '/audit-log', label: 'Audit Log', icon: 'ri-file-list-3-line', ownerOnly: true, premiumOnly: true },
   { path: '/sales-metrics', label: 'Sales Metrics', icon: 'ri-line-chart-line', ownerOnly: true },
   { path: '/staff', label: 'Staff', icon: 'ri-team-line', ownerOnly: true },
@@ -35,6 +34,8 @@ export default function Sidebar() {
   const navItems = user?.role === 'owner'
     ? allNavItems
     : allNavItems.filter(item => !item.ownerOnly);
+
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -64,7 +65,7 @@ export default function Sidebar() {
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden">
+        <nav className="flex-1 py-3">
           {navItems.map(item => {
             const locked = isLocked(item);
             if (locked) {
@@ -183,30 +184,45 @@ export default function Sidebar() {
               <i className={`${theme === 'light' ? 'ri-moon-line' : 'ri-sun-line'} text-base`}></i>
             </div>
             {!sidebarCollapsed && <span className="text-sm font-body">{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>}
+            {sidebarCollapsed && (
+              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
+                {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+              </div>
+            )}
           </button>
 
           {/* Logout */}
           <button
-            onClick={handleLogout}
-            className={`flex items-center h-10 mx-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-danger-50 dark:hover:bg-danger-500/10 hover:text-danger-500 transition-all cursor-pointer
+            onClick={() => setShowLogoutModal(true)}
+            className={`flex items-center h-10 mx-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-danger-50 dark:hover:bg-danger-500/10 hover:text-danger-500 transition-all cursor-pointer group
               ${sidebarCollapsed ? 'justify-center px-0 w-12' : 'px-3 gap-3 w-[calc(100%-16px)]'}`}
           >
             <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
               <i className="ri-logout-box-line text-base"></i>
             </div>
             {!sidebarCollapsed && <span className="text-sm font-body whitespace-nowrap">Sign Out</span>}
+            {sidebarCollapsed && (
+              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
+                Sign Out
+              </div>
+            )}
           </button>
 
           {/* Collapse toggle */}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className={`flex items-center h-10 mx-2 rounded-lg text-gray-400 dark:text-gray-600 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-600 dark:hover:text-gray-400 transition-all cursor-pointer
+            className={`flex items-center h-10 mx-2 rounded-lg text-gray-400 dark:text-gray-600 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-600 dark:hover:text-gray-400 transition-all cursor-pointer group
               ${sidebarCollapsed ? 'justify-center px-0 w-12' : 'px-3 gap-3 w-[calc(100%-16px)]'}`}
           >
             <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
               <i className={`${sidebarCollapsed ? 'ri-arrow-right-s-line' : 'ri-arrow-left-s-line'} text-base`}></i>
             </div>
             {!sidebarCollapsed && <span className="text-sm font-body whitespace-nowrap">Collapse</span>}
+            {sidebarCollapsed && (
+              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
+                {sidebarCollapsed ? 'Expand' : 'Collapse'}
+              </div>
+            )}
           </button>
         </div>
       </aside>
@@ -214,6 +230,37 @@ export default function Sidebar() {
       {showHelp && <HelpSupportModal onClose={() => setShowHelp(false)} />}
       {upgradeFeature && <UpgradeModal featureName={upgradeFeature} onClose={() => setUpgradeFeature(null)} />}
       {showTour && <OnboardingTour onClose={() => setShowTour(false)} />}
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-surface-light dark:bg-surface-dark w-full max-w-sm rounded-card border border-border-light dark:border-border-dark shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-danger-50 dark:bg-danger-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="ri-logout-box-line text-2xl text-danger-500"></i>
+              </div>
+              <h3 className="text-xl font-heading font-700 text-gray-900 dark:text-white mb-2">Sign Out?</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-body mb-8">
+                Are you sure you want to sign out of Klavora? You will need your credentials to log back in.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowLogoutModal(false)}
+                  className="flex-1 h-btn bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 rounded-btn text-sm font-medium font-body transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex-1 h-btn bg-danger-500 hover:bg-danger-600 text-white rounded-btn text-sm font-medium font-body transition-colors cursor-pointer"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

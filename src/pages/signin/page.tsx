@@ -21,6 +21,8 @@ export default function SignInPage() {
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
   const [pinShake, setPinShake] = useState(false);
+  const [isLoggedInSuccess, setIsLoggedInSuccess] = useState(false);
+  const [loginMessage, setLoginMessage] = useState('');
 
   // Forgot password state
   const [forgotStep, setForgotStep] = useState<'none' | 'email' | 'code' | 'new_password' | 'success'>('none');
@@ -45,7 +47,9 @@ export default function SignInPage() {
         pharmacyName: pharmacy.name,
       };
       login(authUser);
-      navigate('/dashboard');
+      setLoginMessage('Owner Login Successful!');
+      setIsLoggedInSuccess(true);
+      setTimeout(() => navigate('/dashboard'), 2000);
     } else {
       setError('Invalid email or password. Try the demo account.');
     }
@@ -69,12 +73,14 @@ export default function SignInPage() {
             const authUser: AuthUser = {
               id: selectedStaff.id,
               name: selectedStaff.name,
-              role: 'staff',
+              role: 'Staff',
               pharmacyId: pharmacy.id,
               pharmacyName: pharmacy.name,
             };
             login(authUser);
-            navigate('/sell');
+            setLoginMessage(`Welcome, ${selectedStaff.name}!`);
+            setIsLoggedInSuccess(true);
+            setTimeout(() => navigate('/sell'), 1500);
           } else {
             setPinShake(true);
             setPinError('Incorrect PIN. Try again.');
@@ -94,6 +100,28 @@ export default function SignInPage() {
     setPin('');
     setPinError('');
   };
+
+  if (isLoggedInSuccess) {
+    return (
+      <div className="min-h-screen bg-bg-light dark:bg-bg-dark flex items-center justify-center p-4 transition-colors duration-200">
+        <div className="w-full max-w-md text-center animate-in fade-in zoom-in duration-300">
+          <div className="w-20 h-20 rounded-full bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center mx-auto mb-6 border-2 border-amber-400">
+            <i className="ri-check-line text-amber-500 text-4xl animate-in zoom-in duration-500 delay-150"></i>
+          </div>
+          <h1 className="text-2xl font-heading font-700 text-gray-900 dark:text-white mb-2">
+            {loginMessage}
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-body mb-6">
+            Login successful! Redirecting you to the {loginMessage.includes('Owner') ? 'dashboard' : 'sell terminal'}...
+          </p>
+          <div className="flex items-center justify-center gap-2 text-amber-500">
+            <i className="ri-loader-4-line animate-spin text-xl"></i>
+            <span className="text-sm font-medium font-body">Preparing your workspace</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0f172a] flex flex-col items-center justify-center p-4 transition-colors duration-200 relative overflow-hidden">

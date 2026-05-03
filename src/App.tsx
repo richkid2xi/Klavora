@@ -31,7 +31,6 @@ export default function App() {
             <Route path="/add-inventory" element={<AddInventoryPage />} />
             <Route path="/sell" element={<SellPage />} />
             <Route path="/restock" element={<RestockPage />} />
-            <Route path="/insights" element={<SalesMetricsPage />} />
             <Route path="/sales-metrics" element={<SalesMetricsPage />} />
             <Route path="/staff" element={<StaffPage />} />
             <Route path="/settings" element={<SettingsPage />} />

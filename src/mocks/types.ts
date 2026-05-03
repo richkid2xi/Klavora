@@ -41,7 +41,7 @@ export interface Transaction {
 export interface AuthUser {
   id: string;
   name: string;
-  role: 'owner' | 'staff';
+  role: 'owner' | 'Admin' | 'Pharmacist' | 'Staff';
   pharmacyId: string;
   pharmacyName: string;
 }

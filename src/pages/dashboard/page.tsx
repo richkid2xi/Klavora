@@ -188,7 +188,7 @@ export default function DashboardPage() {
     ).sort((a, b) => a.days - b.days), [drugs]);
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl">
+    <div className="p-4 md:p-6">
       <div className="mb-6">
         <h1 className="text-xl md:text-2xl font-heading font-700 text-gray-900 dark:text-white">Dashboard</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 font-body mt-0.5">
