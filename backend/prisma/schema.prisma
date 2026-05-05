@@ -1,0 +1,301 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  PHARMACIST
+  CASHIER
+  VIEWER
+}
+
+enum TransactionType {
+  SALE
+  PURCHASE
+  RETURN
+  ADJUSTMENT
+  DISPENSE
+}
+
+enum TransactionStatus {
+  PENDING
+  PAID
+  VOIDED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  MOBILE_MONEY
+  INSURANCE
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIAL
+  REFUNDED
+}
+
+enum AlertType {
+  LOW_STOCK
+  OUT_OF_STOCK
+  EXPIRY_APPROACHING
+  EXPIRED
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum AlertStatus {
+  UNREAD
+  READ
+  RESOLVED
+}
+
+enum AdjustmentType {
+  INCREASE
+  DECREASE
+}
+
+enum BatchStatus {
+  ACTIVE
+  EXPIRED
+  DEPLETED
+  ARCHIVED
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  firstName     String
+  lastName      String
+  role          UserRole
+  phone         String?
+  isActive      Boolean   @default(true)
+  pharmacyId    String?
+  pharmacy      Pharmacy? @relation(fields: [pharmacyId], references: [id])
+  lastLogin     DateTime?
+  refreshTokenVersion Int   @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  transactions    Transaction[]
+  auditLogs       AuditLog[]
+  sessions        Session[]
+
+  @@index([pharmacyId])
+  @@index([email])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  ipAddress    String?
+  userAgent    String?
+
+  @@index([userId])
+  @@index([refreshToken])
+}
+
+model Pharmacy {
+  id                  String    @id @default(uuid())
+  name                String
+  licenseNumber       String    @unique
+  address             String
+  city                String
+  state               String
+  country             String    @default("Nigeria")
+  phone               String
+  email               String
+  logo                String?
+  expiryAlertDays     Int       @default(90)
+  currency           String    @default("NGN")
+  timezone           String    @default("Africa/Lagos")
+  isActive            Boolean   @default(true)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  users               User[]
+  inventoryItems      InventoryItem[]
+  transactions        Transaction[]
+  alerts              Alert[]
+  reports             Report[]
+  auditLogs           AuditLog[]
+}
+
+model InventoryItem {
+  id                String    @id @default(uuid())
+  pharmacyId        String
+  pharmacy          Pharmacy  @relation(fields: [pharmacyId], references: [id])
+  name              String
+  genericName       String?
+  sku               String    @unique
+  barcode           String?
+  category          String
+  description       String?
+  unitPrice         Decimal   @db.Decimal(12, 2)
+  costPrice         Decimal   @db.Decimal(12, 2)
+  reorderLevel     Int       @default(10)
+  totalQuantity     Int       @default(0)
+  unit              String    @default("unit")
+  isActive          Boolean   @default(true)
+  imageUrl          String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  batches           InventoryBatch[]
+  transactionItems  TransactionItem[]
+
+  @@unique([pharmacyId, sku])
+  @@index([pharmacyId])
+  @@index([name])
+  @@index([category])
+}
+
+model InventoryBatch {
+  id              String       @id @default(uuid())
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+  batchNumber     String
+  expiryDate      DateTime
+  quantity        Int
+  remainingQty   Int
+  costPrice       Decimal      @db.Decimal(12, 2)
+  supplierName   String?
+  receivedDate   DateTime     @default(now())
+  notes           String?
+  status          BatchStatus  @default(ACTIVE)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  transactionItems TransactionItem[]
+
+  @@unique([inventoryItemId, batchNumber])
+  @@index([inventoryItemId])
+  @@index([expiryDate])
+}
+
+model Transaction {
+  id              String            @id @default(uuid())
+  pharmacyId      String
+  pharmacy        Pharmacy          @relation(fields: [pharmacyId], references: [id])
+  userId          String
+  user            User              @relation(fields: [userId], references: [id])
+  referenceNumber String            @unique
+  type            TransactionType
+  status          TransactionStatus @default(PENDING)
+  subtotal        Decimal           @db.Decimal(12, 2)
+  discount        Decimal           @default(0) @db.Decimal(12, 2)
+  tax             Decimal           @default(0) @db.Decimal(12, 2)
+  totalAmount     Decimal           @db.Decimal(12, 2)
+  paymentMethod   PaymentMethod?
+  paymentStatus   PaymentStatus     @default(PENDING)
+  customerName    String?
+  customerPhone   String?
+  notes           String?
+  voidedAt        DateTime?
+  voidedBy        String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  items           TransactionItem[]
+
+  @@index([pharmacyId])
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([referenceNumber])
+  @@index([createdAt])
+}
+
+model TransactionItem {
+  id              String    @id @default(uuid())
+  transactionId   String
+  transaction     Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  batchId         String?
+  batch           InventoryBatch? @relation(fields: [batchId], references: [id])
+  quantity        Int
+  unitPrice       Decimal   @db.Decimal(12, 2)
+  costPrice       Decimal   @db.Decimal(12, 2)
+  discount        Decimal   @default(0) @db.Decimal(12, 2)
+  tax             Decimal   @default(0) @db.Decimal(12, 2)
+  total           Decimal   @db.Decimal(12, 2)
+  createdAt       DateTime  @default(now())
+
+  @@index([transactionId])
+  @@index([inventoryItemId])
+  @@index([batchId])
+}
+
+model Alert {
+  id            String         @id @default(uuid())
+  pharmacyId   String
+  pharmacy     Pharmacy       @relation(fields: [pharmacyId], references: [id])
+  type         AlertType
+  severity     AlertSeverity
+  status       AlertStatus    @default(UNREAD)
+  title        String
+  message      String
+  inventoryItemId String?
+  batchId      String?
+  metadata     Json?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([pharmacyId])
+  @@index([type])
+  @@index([status])
+}
+
+model AuditLog {
+  id            String    @id @default(uuid())
+  pharmacyId   String?
+  pharmacy     Pharmacy? @relation(fields: [pharmacyId], references: [id])
+  userId       String?
+  user         User?     @relation(fields: [userId], references: [id])
+  action       String
+  entityType   String
+  entityId     String
+  oldValues     Json?
+  newValues     Json?
+  ipAddress     String?
+  userAgent     String?
+  createdAt    DateTime   @default(now())
+
+  @@index([pharmacyId])
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model Report {
+  id            String    @id @default(uuid())
+  pharmacyId   String
+  pharmacy     Pharmacy  @relation(fields: [pharmacyId], references: [id])
+  type          String
+  title         String
+  dateFrom      DateTime
+  dateTo        DateTime
+  data          Json
+  createdAt     DateTime  @default(now())
+
+  @@index([pharmacyId])
+  @@index([type])
+}

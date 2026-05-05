@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: klavora-postgres
+    environment:
+      POSTGRES_USER: klavora_user
+      POSTGRES_PASSWORD: klavora_pass
+      POSTGRES_DB: klavora_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - klavora_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U klavora_user -d klavora_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: klavora-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - klavora_redis_data:/data
+
+volumes:
+  klavora_postgres_data:
+  klavora_redis_data:
