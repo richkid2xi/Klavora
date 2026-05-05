@@ -2,10 +2,13 @@
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
   --background: #f8fafc;
+  --background-dark: #080c14;
   --surface: #ffffff;
-  --text-main: #0f172a;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
   --text-muted: #64748b;
   --border: #e2e8f0;
+  --font-primary: 'Plus Jakarta Sans', 'Outfit', sans-serif;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -26,10 +29,9 @@ html, body, #root {
 body {
   font-family: var(--font-primary);
   background-color: var(--background-dark);
-  color: var(--text-primary);
+  color: #ffffff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
 }
 
 /* Custom Scrollbar Styling */
