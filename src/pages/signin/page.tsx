@@ -1,0 +1,433 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useApp } from '@/context/AppContext';
+import { pharmacies, demoOwnerCredentials } from '@/mocks/pharmacy';
+import { staffMembers } from '@/mocks/staff';
+import type { AuthUser } from '@/mocks/types';
+
+type LoginMode = 'owner' | 'staff';
+
+export default function SignInPage() {
+  const { login, theme, toggleTheme } = useApp();
+  const navigate = useNavigate();
+  const [mode, setMode] = useState<LoginMode>('owner');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Staff PIN state
+  const [selectedStaff, setSelectedStaff] = useState<typeof staffMembers[0] | null>(null);
+  const [pin, setPin] = useState('');
+  const [pinError, setPinError] = useState('');
+  const [pinShake, setPinShake] = useState(false);
+  const [isLoggedInSuccess, setIsLoggedInSuccess] = useState(false);
+  const [loginMessage, setLoginMessage] = useState('');
+
+  // Forgot password state
+  const [forgotStep, setForgotStep] = useState<'none' | 'email' | 'code' | 'new_password' | 'success'>('none');
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotCode, setForgotCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+
+  const staffOnly = staffMembers.filter(s => s.role === 'staff');
+  const pharmacy = pharmacies[0];
+
+  const handleOwnerLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (email === pharmacy.ownerEmail && password === pharmacy.ownerPassword) {
+      const owner = staffMembers.find(s => s.role === 'owner')!;
+      const authUser: AuthUser = {
+        id: owner.id,
+        name: owner.name,
+        role: 'owner',
+        pharmacyId: pharmacy.id,
+        pharmacyName: pharmacy.name,
+      };
+      login(authUser);
+      setLoginMessage('Owner Login Successful!');
+      setIsLoggedInSuccess(true);
+      setTimeout(() => navigate('/dashboard'), 2000);
+    } else {
+      setError('Invalid email or password. Try the demo account.');
+    }
+  };
+
+  const handleDemoFill = () => {
+    setEmail(demoOwnerCredentials.email);
+    setPassword(demoOwnerCredentials.password);
+    setError('');
+  };
+
+  const handlePinDigit = (digit: string) => {
+    if (!selectedStaff) return;
+    const newPin = pin + digit;
+    if (newPin.length <= 4) {
+      setPin(newPin);
+      setPinError('');
+      if (newPin.length === 4) {
+        setTimeout(() => {
+          if (newPin === selectedStaff.pin) {
+            const authUser: AuthUser = {
+              id: selectedStaff.id,
+              name: selectedStaff.name,
+              role: 'Staff',
+              pharmacyId: pharmacy.id,
+              pharmacyName: pharmacy.name,
+            };
+            login(authUser);
+            setLoginMessage(`Welcome, ${selectedStaff.name}!`);
+            setIsLoggedInSuccess(true);
+            setTimeout(() => navigate('/sell'), 1500);
+          } else {
+            setPinShake(true);
+            setPinError('Incorrect PIN. Try again.');
+            setTimeout(() => { setPin(''); setPinShake(false); }, 600);
+          }
+        }, 150);
+      }
+    }
+  };
+
+  const handlePinDelete = () => {
+    setPin(prev => prev.slice(0, -1));
+    setPinError('');
+  };
+
+  const handlePinClear = () => {
+    setPin('');
+    setPinError('');
+  };
+
+  if (isLoggedInSuccess) {
+    return (
+      <div className="min-h-screen bg-bg-light dark:bg-bg-dark flex items-center justify-center p-4 transition-colors duration-200">
+        <div className="w-full max-w-md text-center animate-in fade-in zoom-in duration-300">
+          <div className="w-20 h-20 rounded-full bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center mx-auto mb-6 border-2 border-amber-400">
+            <i className="ri-check-line text-amber-500 text-4xl animate-in zoom-in duration-500 delay-150"></i>
+          </div>
+          <h1 className="text-2xl font-heading font-700 text-gray-900 dark:text-white mb-2">
+            {loginMessage}
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-body mb-6">
+            Login successful! Redirecting you to the {loginMessage.includes('Owner') ? 'dashboard' : 'sell terminal'}...
+          </p>
+          <div className="flex items-center justify-center gap-2 text-amber-500">
+            <i className="ri-loader-4-line animate-spin text-xl"></i>
+            <span className="text-sm font-medium font-body">Preparing your workspace</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0f172a] flex flex-col items-center justify-center p-4 transition-colors duration-200 relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-primary-500/10 via-primary-500/5 to-transparent pointer-events-none" />
+      {/* Theme toggle */}
+      <button
+        onClick={toggleTheme}
+        className="fixed top-4 right-4 w-9 h-9 flex items-center justify-center rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors cursor-pointer"
+      >
+        {theme === 'light' ? <i className="ri-moon-line text-base"></i> : <i className="ri-sun-line text-base"></i>}
+      </button>
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 mb-3">
+            <div className="w-9 h-9 rounded-lg bg-primary-500 flex items-center justify-center">
+              <i className="ri-medicine-bottle-line text-white text-lg"></i>
+            </div>
+            <span className="font-heading font-700 text-xl text-gray-900 dark:text-white tracking-tight">Klavora</span>
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-body">Smart Pharmacy Management</p>
+        </div>
+
+        {/* Mode tabs (Hide during forgot password flow) */}
+        {forgotStep === 'none' && (
+          <div className="flex bg-gray-100 dark:bg-surface-dark rounded-lg p-1 mb-6 border border-border-light dark:border-border-dark">
+            <button
+              onClick={() => { setMode('owner'); setError(''); setPin(''); setSelectedStaff(null); }}
+              className={`flex-1 h-9 rounded-md text-sm font-medium font-body transition-all cursor-pointer whitespace-nowrap ${mode === 'owner' ? 'bg-white dark:bg-bg-dark text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+            >
+              Owner Login
+            </button>
+            <button
+              onClick={() => { setMode('staff'); setError(''); setPin(''); setSelectedStaff(null); }}
+              className={`flex-1 h-9 rounded-md text-sm font-medium font-body transition-all cursor-pointer whitespace-nowrap ${mode === 'staff' ? 'bg-white dark:bg-bg-dark text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+            >
+              Staff Login
+            </button>
+          </div>
+        )}
+
+
+        {/* Card */}
+        <div className="bg-white dark:bg-surface-dark rounded-2xl border border-gray-100 dark:border-border-dark p-6 md:p-8 shadow-xl shadow-gray-200/40 dark:shadow-none">
+          {forgotStep !== 'none' ? (
+            <div className="space-y-4">
+              {forgotStep === 'email' && (
+                <form onSubmit={e => { e.preventDefault(); setError(''); if(!forgotEmail) setError('Email required'); else setForgotStep('code'); }} className="space-y-4">
+                  <h2 className="text-lg font-heading font-700 text-gray-900 dark:text-white">Reset Password</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-body">Enter the email associated with your account.</p>
+                  <div>
+                    <input
+                      type="email"
+                      value={forgotEmail}
+                      onChange={e => setForgotEmail(e.target.value)}
+                      placeholder="Email address"
+                      className="w-full h-11 px-4 rounded-xl border border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-bg-dark text-gray-900 dark:text-white text-sm font-body focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                    />
+                  </div>
+                  {error && <p className="text-xs text-danger-500">{error}</p>}
+                  <button type="submit" className="w-full h-11 bg-primary-500 hover:bg-primary-600 text-white rounded-xl text-sm font-medium font-body transition-colors cursor-pointer shadow-sm">
+                    Send Code
+                  </button>
+                  <button type="button" onClick={() => setForgotStep('none')} className="w-full h-btn border border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-white/5 text-gray-600 dark:text-gray-400 rounded-btn text-sm font-medium font-body cursor-pointer">
+                    Back to Login
+                  </button>
+                </form>
+              )}
+              {forgotStep === 'code' && (
+                <form onSubmit={e => { e.preventDefault(); setError(''); if(forgotCode.length !== 6) setError('Code must be 6 digits'); else setForgotStep('new_password'); }} className="space-y-4">
+                  <h2 className="text-lg font-heading font-700 text-gray-900 dark:text-white">Enter Reset Code</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-body">A 6-digit code has been sent to your email.</p>
+                  <div>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={forgotCode}
+                      onChange={e => setForgotCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="000000"
+                      className="w-full h-11 px-4 rounded-xl border border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-bg-dark text-gray-900 dark:text-white text-center text-lg tracking-[0.5em] font-mono focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                    />
+                  </div>
+                  {error && <p className="text-xs text-danger-500">{error}</p>}
+                  <button type="submit" className="w-full h-11 bg-primary-500 hover:bg-primary-600 text-white rounded-xl text-sm font-medium font-body transition-colors cursor-pointer shadow-sm">
+                    Verify Code
+                  </button>
+                  <button type="button" onClick={() => setForgotStep('none')} className="w-full h-btn border border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-white/5 text-gray-600 dark:text-gray-400 rounded-btn text-sm font-medium font-body cursor-pointer">
+                    Cancel
+                  </button>
+                </form>
+              )}
+              {forgotStep === 'new_password' && (
+                <form onSubmit={e => { 
+                  e.preventDefault(); 
+                  setError(''); 
+                  if(newPassword.length < 8) setError('Min 8 characters'); 
+                  else if(newPassword !== confirmNewPassword) setError('Passwords do not match'); 
+                  else {
+                    setForgotStep('success');
+                    setTimeout(() => {
+                      setForgotStep('none');
+                    }, 60000); // go back to login after 1 minute
+                  }
+                }} className="space-y-4">
+                  <h2 className="text-lg font-heading font-700 text-gray-900 dark:text-white">New Password</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-body">Create a new password for your account.</p>
+                  <div>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      placeholder="New password"
+                      className="w-full h-11 px-4 rounded-xl border border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-bg-dark text-gray-900 dark:text-white text-sm font-body focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 mb-3 transition-all"
+                    />
+                    <input
+                      type="password"
+                      value={confirmNewPassword}
+                      onChange={e => setConfirmNewPassword(e.target.value)}
+                      placeholder="Confirm new password"
+                      className="w-full h-11 px-4 rounded-xl border border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-bg-dark text-gray-900 dark:text-white text-sm font-body focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                    />
+                  </div>
+                  {error && <p className="text-xs text-danger-500">{error}</p>}
+                  <button type="submit" className="w-full h-11 bg-primary-500 hover:bg-primary-600 text-white rounded-xl text-sm font-medium font-body transition-colors cursor-pointer shadow-sm">
+                    Reset Password
+                  </button>
+                </form>
+              )}
+              {forgotStep === 'success' && (
+                <div className="text-center py-4">
+                  <div className="w-12 h-12 rounded-full bg-success-50 dark:bg-success-500/10 flex items-center justify-center mx-auto mb-4">
+                    <i className="ri-check-line text-success-500 text-2xl"></i>
+                  </div>
+                  <h2 className="text-lg font-heading font-700 text-gray-900 dark:text-white mb-2">Password Reset!</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-body mb-6">Your password has been changed successfully. Please log in with your new password.</p>
+                  <button onClick={() => setForgotStep('none')} className="w-full h-btn bg-primary-500 hover:bg-primary-600 text-white rounded-btn text-sm font-medium font-body transition-colors cursor-pointer">
+                    Back to Login
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : mode === 'owner' ? (
+            <form onSubmit={handleOwnerLogin} className="space-y-4">
+              <div>
+                <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="owner@klavora.demo"
+                  className="w-full h-11 px-4 rounded-xl border border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-bg-dark text-gray-900 dark:text-white text-sm font-body placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-label uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5 font-body">Password</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full h-11 px-4 pr-10 rounded-xl border border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-bg-dark text-gray-900 dark:text-white text-sm font-body placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(p => !p)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer"
+                  >
+                    <i className={showPassword ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
+                  </button>
+                </div>
+              </div>
+              {error && (
+                <div className="flex items-center gap-2 text-danger-500 text-sm font-body bg-danger-50 dark:bg-danger-500/10 border border-danger-500/20 rounded-lg px-3 py-2">
+                  <i className="ri-error-warning-line flex-shrink-0"></i>
+                  <span>{error}</span>
+                </div>
+              )}
+              <button
+                type="submit"
+                className="w-full h-11 bg-primary-500 hover:bg-primary-600 text-white rounded-xl text-sm font-medium font-body transition-colors cursor-pointer shadow-sm whitespace-nowrap"
+              >
+                Sign In
+              </button>
+              <div className="flex justify-between items-center mt-2">
+                <button
+                  type="button"
+                  onClick={() => { setForgotStep('email'); setError(''); }}
+                  className="text-xs text-primary-500 hover:text-primary-600 font-body cursor-pointer"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={handleDemoFill}
+                className="w-full h-11 border border-gray-200 dark:border-border-dark hover:border-primary-500 hover:text-primary-500 text-gray-600 dark:text-gray-400 rounded-xl text-sm font-medium font-body transition-colors cursor-pointer whitespace-nowrap bg-white dark:bg-surface-dark"
+              >
+                <i className="ri-flask-line mr-2"></i>Use Demo Account
+              </button>
+              <div className="text-center">
+                <p className="text-xs text-gray-400 dark:text-gray-600 font-mono">owner@klavora.demo / demo1234</p>
+              </div>
+            </form>
+          ) : (
+            <div>
+              {!selectedStaff ? (
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-body mb-4">Select your name to continue</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {staffOnly.map(staff => (
+                      <button
+                        key={staff.id}
+                        onClick={() => { setSelectedStaff(staff); setPin(''); setPinError(''); }}
+                        className="flex items-center gap-3 p-3 rounded-lg border border-border-light dark:border-border-dark hover:border-primary-500 bg-bg-light dark:bg-bg-dark transition-all cursor-pointer group"
+                      >
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-heading font-600 flex-shrink-0"
+                          style={{ backgroundColor: staff.color }}
+                        >
+                          {staff.initials}
+                        </div>
+                        <div className="text-left min-w-0">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white font-body truncate">{staff.name}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-600 font-body">Staff</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <button
+                    onClick={() => { setSelectedStaff(null); setPin(''); setPinError(''); }}
+                    className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-5 cursor-pointer transition-colors"
+                  >
+                    <i className="ri-arrow-left-line"></i>
+                    <span className="font-body">Back</span>
+                  </button>
+                  <div className="flex flex-col items-center">
+                    <div
+                      className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-heading font-700 mb-2"
+                      style={{ backgroundColor: selectedStaff.color }}
+                    >
+                      {selectedStaff.initials}
+                    </div>
+                    <p className="text-base font-heading font-600 text-gray-900 dark:text-white mb-1">{selectedStaff.name}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-600 font-body mb-5">Enter your 4-digit PIN</p>
+
+                    {/* PIN dots */}
+                    <div className={`flex gap-3 mb-4 ${pinShake ? 'animate-shake' : ''}`}>
+                      {[0, 1, 2, 3].map(i => (
+                        <div
+                          key={i}
+                          className={`w-4 h-4 rounded-full border-2 transition-all duration-150 ${i < pin.length ? 'bg-primary-500 border-primary-500' : 'border-gray-300 dark:border-gray-600'}`}
+                        />
+                      ))}
+                    </div>
+
+                    {pinError && (
+                      <p className="text-xs text-danger-500 font-body mb-3">{pinError}</p>
+                    )}
+
+                    {/* PIN pad */}
+                    <div className="grid grid-cols-3 gap-3 w-full max-w-[240px]">
+                      {['1','2','3','4','5','6','7','8','9','','0','⌫'].map((key, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            if (key === '⌫') handlePinDelete();
+                            else if (key !== '') handlePinDigit(key);
+                          }}
+                          disabled={key === ''}
+                          className={`h-14 rounded-lg text-lg font-mono font-500 transition-all cursor-pointer whitespace-nowrap
+                            ${key === '' ? 'invisible' : ''}
+                            ${key === '⌫' ? 'text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-bg-dark border border-border-light dark:border-border-dark hover:bg-gray-200 dark:hover:bg-gray-800' : 'bg-bg-light dark:bg-bg-dark border border-border-light dark:border-border-dark text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95'}
+                          `}
+                        >
+                          {key}
+                        </button>
+                      ))}
+                    </div>
+                    {pin.length > 0 && (
+                      <button onClick={handlePinClear} className="mt-3 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 font-body cursor-pointer transition-colors">
+                        Clear
+                      </button>
+                    )}
+                    <div className="mt-4 text-center">
+                      <p className="text-xs text-gray-400 dark:text-gray-600 font-mono">Demo PIN: {selectedStaff.pin}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* New pharmacy link — below card */}
+        <div className="text-center mt-5">
+          <span className="text-sm text-gray-500 dark:text-gray-400 font-body">New pharmacy? </span>
+          <a href="/signup" className="text-sm text-primary-500 hover:text-primary-600 font-semibold font-body cursor-pointer transition-colors">Create your account</a>
+        </div>
+      </div>
+    </div>
+  );
+}

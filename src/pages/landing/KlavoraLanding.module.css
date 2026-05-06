@@ -1,0 +1,737 @@
+/* Global Responsive Styles */
+.klavoraLanding {
+  width: 100%;
+  background-color: #fff;
+  overflow-x: hidden;
+  text-align: left;
+  font-size: 14px;
+  color: #9ca3af;
+  font-family: Inter, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.background {
+  width: 100%;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.reveal {
+  opacity: 0;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.revealVisible {
+  opacity: 1;
+  transform: translateY(0);
+  animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.hoverScale {
+  transition: transform 0.3s ease;
+}
+
+.hoverScale:hover {
+  transform: scale(1.02);
+}
+
+/* Nav */
+.nav {
+  position: fixed;
+  width: 100%;
+  top: 0px;
+  height: 80px;
+  font-size: 15px;
+  color: #4b5563;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5%;
+  box-sizing: border-box;
+}
+
+.link4 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+  color: #0a0a0a;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.klavoraIcon2 {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.navLinks {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .navLinks {
+    display: none;
+  }
+}
+
+.link5 {
+  padding: 10px 24px;
+  border-radius: 9999px;
+  background-color: #0066ff;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hero Section */
+.section2 {
+  width: 100%;
+  padding: 160px 5% 80px;
+  background-color: #f9fafb;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 60px;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.heroContent {
+  flex: 1;
+  min-width: 320px;
+}
+
+.pharmacyInventorySystem {
+  font-size: 14px;
+  letter-spacing: 2.8px;
+  line-height: 20px;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+
+.heading1Container {
+  font-size: 64px;
+  line-height: 1.1;
+  color: #0a0a0a;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .heading1Container {
+    font-size: 42px;
+  }
+}
+
+.pharmacyInventory {
+  color: #4b5563;
+}
+
+.neverLoseMoney {
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  max-width: 500px;
+}
+
+.heroButtons {
+  display: flex;
+  gap: 20px;
+}
+
+@media (max-width: 480px) {
+  .heroButtons {
+    flex-direction: column;
+  }
+}
+
+.link, .link2 {
+  padding: 16px 32px;
+  border-radius: 9999px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.link {
+  background-color: #0066ff;
+  color: #fff;
+}
+
+.link2 {
+  border: 1px solid #d1d5db;
+  color: #0a0a0a;
+}
+
+.section3 {
+  flex: 1;
+  min-width: 320px;
+  border-radius: 16px;
+  background: linear-gradient(267.36deg, #19977e, #274e4f 40.02%, #2a3f45);
+  height: 440px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sectionIcon {
+  width: 90%;
+  height: auto;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+/* The Reality Section */
+.section {
+  width: 100%;
+  padding: 100px 5%;
+  background-color: #0f0f0f;
+  color: #0066ff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.frameParent {
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.heading2 {
+  font-size: 48px;
+  line-height: 1.2;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #fff;
+  margin: 20px 0;
+}
+
+@media (max-width: 768px) {
+  .heading2 {
+    font-size: 32px;
+  }
+}
+
+.everyMonthPharmacies {
+  font-size: 20px;
+  line-height: 1.6;
+  color: #d1d5db;
+}
+
+/* Core Capabilities Section */
+.section4 {
+  width: 100%;
+  padding: 100px 5%;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.frameDiv {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+}
+
+.coreCapabilities {
+  letter-spacing: 2.8px;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: #0066ff;
+}
+
+.heading22 {
+  font-size: 48px;
+  color: #0a0a0a;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  margin-top: 12px;
+}
+
+.capabilitiesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 40px;
+}
+
+.backgroundborderParent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.backgroundborderIcon {
+  width: 100%;
+  border-radius: 12px;
+}
+
+.heading3 {
+  font-size: 24px;
+  color: #0a0a0a;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  margin-bottom: 12px;
+}
+
+.everyDrugBatch {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #6b7280;
+}
+
+/* Simple Process Section */
+.section5 {
+  width: 100%;
+  padding: 100px 5%;
+  background-color: #0a0a0a;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.heading23 {
+  font-size: 48px;
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  margin-bottom: 16px;
+}
+
+.getStartedIn {
+  font-size: 18px;
+  color: #9ca3af;
+  margin-bottom: 60px;
+}
+
+.processGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.paragraphbackground, .paragraphbackground2, .paragraphbackground3 {
+  background-color: #1a1a1a;
+  padding: 48px;
+  border-radius: 16px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.div, .div2, .div3 {
+  font-size: 72px;
+  font-weight: 200;
+  color: rgba(0, 102, 255, 0.3);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.heading35, .heading36, .heading37 {
+  font-size: 24px;
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.createYourPharmacy, .scanOrManually, .monitorExpiryAlerts {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #9ca3af;
+}
+
+/* About Section */
+.section6 {
+  width: 100%;
+  padding: 100px 5%;
+  background-color: #fff;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 60px;
+  box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.aboutHeader {
+  flex: 1;
+  min-width: 300px;
+}
+
+.aboutKlavora {
+  letter-spacing: 2.8px;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.heading24 {
+  font-size: 42px;
+  color: #0a0a0a;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.aboutText {
+  flex: 1;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+/* Team Section */
+.section7 {
+  width: 100%;
+  padding: 100px 5%;
+  background-color: #f9fafb;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.heading25 {
+  font-size: 48px;
+  color: #0a0a0a;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  margin-bottom: 60px;
+}
+
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.background2, .background3, .background4, .background5 {
+  background-color: #fff;
+  padding: 32px;
+  border-radius: 16px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.backgroundIcon {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.heading38 {
+  font-size: 22px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #0a0a0a;
+}
+
+.founderCeo {
+  font-weight: 500;
+  color: #0066ff;
+}
+
+.productDesignerAnd {
+  font-style: italic;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* CTA Section */
+.section8 {
+  width: 100%;
+  padding: 120px 5%;
+  background-color: #0f0f0f;
+  color: #fff;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  box-sizing: border-box;
+}
+
+.heading26 {
+  font-size: 60px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  max-width: 800px;
+}
+
+@media (max-width: 768px) {
+  .heading26 {
+    font-size: 40px;
+  }
+}
+
+.joinPharmaciesAlready {
+  font-size: 20px;
+  color: #9ca3af;
+}
+
+.link3 {
+  background-color: #0066ff;
+  padding: 20px 48px;
+  border-radius: 9999px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.noCreditCard {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Contact Section */
+.section9 {
+  width: 100%;
+  padding: 100px 5%;
+  background-color: #fff;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 80px;
+  box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.contactInfo {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.heading27 {
+  font-size: 48px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #0a0a0a;
+  margin-bottom: 8px;
+}
+
+.weRespondWithin {
+  font-size: 18px;
+  color: #6b7280;
+  margin-bottom: 40px;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.iconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contactText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.email, .phone {
+  font-size: 14px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.infoklavoragmailcom, .div4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0a0a0a;
+}
+
+.background6 {
+  flex: 1.2;
+  min-width: 320px;
+  background-color: #f9fafb;
+  padding: 60px;
+  border-radius: 24px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.labelFull, .labelPharmacy, .labelPhone, .labelMessage {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.input, .textarea {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  font-size: 16px;
+  box-sizing: border-box;
+  color: #0a0a0a;
+}
+
+.input::placeholder, .textarea::placeholder {
+  color: #9ca3af;
+}
+
+.textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.max500Characters {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.button {
+  background-color: #0066ff;
+  color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 12px;
+}
+
+/* Footer */
+.footer {
+  width: 100%;
+  padding: 100px 5%;
+  background-color: #000;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+.footerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+
+@media (max-width: 768px) {
+  .footerContent {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 60px;
+  }
+}
+
+.footerBrand {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footerLogoContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.klavoraIcon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.klavora {
+  font-size: 24px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+}
+
+.modernPharmacyInventory {
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.footerLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.footerLinkItem {
+  color: #9ca3af;
+  cursor: pointer;
+  transition: color 0.2s;
+  font-size: 16px;
+}
+
+.footerLinkItem:hover {
+  color: #fff;
+}
+
+.footerCopyright {
+  color: #4b5563;
+  font-size: 14px;
+  align-self: flex-start;
+}
+
+@media (max-width: 768px) {
+  .footerCopyright {
+    align-self: center;
+  }
+}
